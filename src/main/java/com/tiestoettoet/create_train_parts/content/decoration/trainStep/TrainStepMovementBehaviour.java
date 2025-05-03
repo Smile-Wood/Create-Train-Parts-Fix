@@ -71,20 +71,20 @@ public class TrainStepMovementBehaviour implements MovementBehaviour {
 
         StructureTemplate.StructureBlockInfo info = contraption.getBlocks()
                 .get(pos);
-        if (info == null || !info.state().hasProperty(DoorBlock.OPEN))
+        if (info == null || !info.state().hasProperty(TrainStepBlock.OPEN))
             return;
 
         toggleStep(pos, contraption, info);
 
         Direction facing = getStepFacing(context);
-        BlockPos inWorldDoor = BlockPos.containing(context.position)
+        BlockPos inWorldStep = BlockPos.containing(context.position)
                 .relative(facing);
-        BlockState inWorldDoorState = context.world.getBlockState(inWorldDoor);
-        if (inWorldDoorState.getBlock() instanceof DoorBlock db && inWorldDoorState.hasProperty(DoorBlock.OPEN))
-            if (inWorldDoorState.hasProperty(DoorBlock.FACING) && inWorldDoorState.getOptionalValue(DoorBlock.FACING)
+        BlockState inWorldStepState = context.world.getBlockState(inWorldStep);
+        if (inWorldStepState.getBlock() instanceof TrainStepBlock sb && inWorldStepState.hasProperty(TrainStepBlock.OPEN))
+            if (inWorldStepState.hasProperty(TrainStepBlock.FACING) && inWorldStepState.getOptionalValue(TrainStepBlock.FACING)
                     .orElse(Direction.UP)
                     .getAxis() == facing.getAxis())
-                db.setOpen(null, context.world, inWorldDoorState, inWorldDoor, shouldOpen);
+                sb.setOpen(null, context.world, inWorldStepState, inWorldStep, shouldOpen);
 
         if (shouldOpen)
             context.world.playSound(null, BlockPos.containing(context.position), SoundEvents.IRON_DOOR_OPEN,

@@ -52,8 +52,7 @@ public class TrainStepBlockEntity extends SmartBlockEntity {
     }
 
     protected boolean isVisible(BlockState state) {
-        return state.getOptionalValue(TrainStepBlock.VISIBLE)
-                .orElse(true);
+        return false;
     }
 
     protected boolean shouldRenderSpecial(BlockState state) {return !isVisible(state) || bridgeTicks != 0;}

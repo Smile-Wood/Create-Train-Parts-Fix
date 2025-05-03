@@ -1,22 +1,38 @@
 package com.tiestoettoet.create_train_parts.content.decoration.trainStep;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.simibubi.create.content.decoration.encasing.CasingConnectivity;
+import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 import com.tiestoettoet.create_train_parts.AllPartialModels;
+//import com.simibubi.create.foundation.render.
+import com.tiestoettoet.create_train_parts.CreateTrainParts;
+import com.tiestoettoet.create_train_parts.content.decoration.encasing.EncasedCTBehaviour;
+import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.render.SpriteShiftEntry;
 import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.createmod.catnip.render.CachedBuffers;
+import com.tiestoettoet.create_train_parts.AllSpriteShifts;
+
+import javax.naming.spi.ResolveResult;
+
+import static com.simibubi.create.foundation.data.CreateRegistrate.casingConnectivity;
 
 
 public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEntity> {
@@ -30,39 +46,195 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
             return;
 
         Direction facing = blockState.getValue(TrainStepBlock.FACING);
-        Direction movementDirection = facing.getClockWise();
+
+        float rotationAngle = switch (facing) {
+            case NORTH -> 0; // No rotation needed
+            case SOUTH -> 180;
+            case WEST -> 90;
+            case EAST -> -90;
+            default -> 0;
+        };
 
         float value = be.animation.getValue(partialTicks);
-        float value2 = Mth.clamp(value * 10, 0, 1);
+        float exponentialValue = (float) value * value;
+        float relativeValue = blockState.getValue(TrainStepBlock.OPEN) ? exponentialValue : 1 - exponentialValue;
+        float relativeAnimationValue = relativeValue;
 
         VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
-        Vec3 offset = Vec3.atLowerCornerOf(movementDirection.getNormal())
-                .scale(value * value * 13 / 16f)
-                .add(Vec3.atLowerCornerOf(facing.getNormal())
-                        .scale(value2 * 1 / 32f));
-
-        Couple<PartialModel> partials = AllPartialModels.TRAIN_STEP.get(BuiltInRegistries.BLOCK.getKey(blockState.getBlock()));
-        SuperByteBuffer partial = CachedBuffers.partial(partials.get(false), blockState);
-
-        float f = 1;
-
-        partial.translate(0, -1 / 512f, 0)
-                .translate(Vec3.atLowerCornerOf(facing.getNormal())
-                        .scale(value2 * 1 / 32f));
-        partial.rotateCentered(Mth.DEG_TO_RAD * AngleHelper.horizontalAngle(facing.getClockWise()), Direction.UP);
-
-        partial.rotateYDegrees(91 * f * value * value);
-
-        partial.light(light)
-                .renderInto(ms, vb);
 
 
+        if (blockState.getBlock() instanceof TrainStepBlock) {
+            ResourceLocation blockTexture = BuiltInRegistries.BLOCK.getKey(blockState.getBlock());
+            String blockTexturePath = blockTexture.getPath();
+            TrainStepBlock.ConnectedState connectedState = blockState.getValue(TrainStepBlock.CONNECTED);
+            ResourceLocation resourceLocation = CreateTrainParts.asResource(blockTexturePath + "/" + facing.getSerializedName() + "_" + connectedState.getSerializedName());
+//            System.out.println("Model path: " + resourceLocation);
+            PartialModel slide =
+//                    AllPartialModels.TRAIN_STEP_SLIDE.get(BuiltInRegistries.BLOCK.getKey(blockState.getBlock()) + "/" + facing.getSerializedName();
+                    AllPartialModels.TRAIN_STEP_SLIDE.get(resourceLocation);
+            PartialModel pivot =
+                    AllPartialModels.TRAIN_STEP_PIVOT.get(resourceLocation);
+            PartialModel move =
+                    AllPartialModels.TRAIN_STEP_MOVE.get(resourceLocation);
+            PartialModel flap =
+                    AllPartialModels.TRAIN_STEP_FLAP.get(resourceLocation);
+            PartialModel block =
+                    AllPartialModels.TRAIN_STEP.get(resourceLocation);
+
+            SuperByteBuffer partial_block = CachedBuffers.partial(block, blockState);
+            partial_block
+                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+//                    .shiftUV(connectedShift)
+                    .light(light)
+                    .renderInto(ms, vb);
 
 
 
 
-        // Add your rendering logic here
-        // For example, you can use CachedBufferer to create a buffer for the TrainStepBlock
-        // and render it using the provided PoseStack and MultiBufferSource.
+
+
+            SuperByteBuffer partial_slide = CachedBuffers.partial(slide, blockState);
+            SuperByteBuffer partial_pivot = CachedBuffers.partial(pivot, blockState);
+            SuperByteBuffer partial_move = CachedBuffers.partial(move, blockState);
+            SuperByteBuffer partial_flap = CachedBuffers.partial(flap, blockState);
+
+            float f = blockState.getValue(TrainStepBlock.OPEN) ? -1 : 1;
+
+//            partial_flap.translate(0, 10.5 / 16f, 0.5 / 16f);
+
+            float movement = 5 / 16f * exponentialValue * f; // Clamp value to avoid unexpected results
+            Direction movementDirection = blockState.getValue(TrainStepBlock.OPEN) ? facing.getOpposite() : facing;
+//            System.out.println("Movement Direction: " + movementDirection);
+            Vec3 moveOffset = Vec3.atLowerCornerOf(movementDirection.getNormal()).scale(movement);
+            partial_slide.translate(moveOffset.x, moveOffset.y, moveOffset.z)
+                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                    .light(light)
+                    .renderInto(ms, vb);
+
+
+//            Vec3 pivotOrigin = new Vec3(10.5 / 16f, 15.5 / 16f, 8 / 16f); // Define the origin point from the model file
+
+            float movementP = (float) (10.5 / 16f);
+            Vec3 moveOffsetP = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementP);
+
+
+            float rotationPivot;
+
+            if (blockState.getValue(TrainStepBlock.OPEN)) {
+                rotationPivot = 90 * f * exponentialValue;
+                // Open to closed: Translate and rotate correctly
+//                    partial_pivot.translate(0, 15.5 / 16f, 10.5 / 16f)
+//                                 .rotateXDegrees(90 * value * f)
+//                                 .light(light)
+//                                 .renderInto(ms, vb);
+//                    System.out.println("Rotation: " + (90 * value * f));
+            } else {
+                rotationPivot = 90 * f * (1 - exponentialValue) - 90;
+                // Closed to open: Reverse translation and rotation
+//                    partial_pivot.translate(0, 15.5 / 16f, 10.5 / 16f)
+//                                 .rotateXDegrees(90 * (1 - value) * f - 90)
+//                                 .light(light)
+//                                 .renderInto(ms, vb);
+//                    System.out.println("Rotation: " + (90 * (1 - value) * f - 90));
+            }
+            partial_pivot.translate(moveOffsetP.x, 15.5 / 16f, moveOffsetP.z)
+                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                    .rotateXDegrees(rotationPivot)
+                    .light(light)
+                    .renderInto(ms, vb);
+
+            float animFirstHalf = Mth.clamp(exponentialValue / 0.5f, 0f, 1f);
+            float animSecondHalf = Mth.clamp((exponentialValue - 0.5f) / 0.5f, 0f, 1f);
+
+
+            float rotation;
+            Vec3 movementF;
+
+            if (relativeValue <= 0.5) {
+                relativeAnimationValue = (float) (relativeValue / 0.5);
+                rotation = (float) 82.5 * f * relativeAnimationValue - (blockState.getValue(TrainStepBlock.OPEN) ? 0 : 90);
+
+//                float movement2 = (float) (0.5 + 1.25 / 16f * animationValue * f); // Clamp value to avoid unexpected results
+//                Vec3 moveOffset2 = Vec3.atLowerCornerOf(movementDirection.getNormal()).scale(movement2);
+//                partial_flap.translate(moveOffset2.x, movement2Up, moveOffset2.z)
+//                        .rotateXDegrees((float) ()
+//                        .light(light)
+//                        .renderInto(ms, vb);
+//                System.out.println("Rotation: " + (82.5 * f * relativeAnimationValue - (blockState.getValue(TrainStepBlock.OPEN) ? 0 : 90)));
+            } else {
+//                float movement3 = (float) (1.75 + 3.75 / 16f * animationValue * f); // Clamp value to avoid unexpected results
+//                Vec3 moveOffset3 = Vec3.atLowerCornerOf(movementDirection.getNormal()).scale(movement3);
+                float startRotation = (float) 82.5; // Starting rotation
+                float endRotation = (float) 90;    // Target rotation
+                float interpolatedRotation = Mth.lerp(relativeAnimationValue, startRotation, endRotation); // Linear interpolation
+                rotation = interpolatedRotation * f - (blockState.getValue(TrainStepBlock.OPEN) ? 0 : 90);
+//                partial_flap.translate(moveOffset3.x, movement3Up, moveOffset3.z)
+//                        .rotateXDegrees((float) (interpolatedRotation * f - (blockState.getValue(TrainStepBlock.OPEN) ? 0 : 90)))
+//                        .light(light)
+//                        .renderInto(ms, vb);
+//                System.out.println("Rotation: " + (interpolatedRotation * f - (blockState.getValue(TrainStepBlock.OPEN) ? 0 : 90)));
+            }
+
+            if (exponentialValue <= 0.5) {
+                float movement2Main = (float) (0.5 / 16f + 1.25 / 16f * animFirstHalf); // Main movement
+                float movement2Up = (float) (10.5 / 16f - 3.5 / 16f * animFirstHalf ); // Upward movement
+
+                // Calculate the offset in the opposite of the movement direction and upward
+                Vec3 moveOffset2 = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movement2Main);
+                movementF = new Vec3(moveOffset2.x, movement2Up, moveOffset2.z);
+            } else {
+                float movement3Main = (float) (1.75 / 16f + 3.75 / 16f * animSecondHalf); // Secondary movement
+                float movement3Up = (float) (7 / 16f - 1.5 / 16f * animSecondHalf ); // Upward movement
+                Vec3 moveOffset3 = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movement3Main);
+
+                movementF = new Vec3(moveOffset3.x, movement3Up, moveOffset3.z);
+            }
+//            System.out.println("MovementF: " + movementF.x + ", " + movementF.y + ", " + movementF.z);
+//            System.out.println("Value: " + value);
+
+            partial_flap.translate(movementF.x, movementF.y, movementF.z)
+                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                    .rotateXDegrees(rotation)
+                    .light(light)
+                    .renderInto(ms, vb);
+
+            float animFirstQuarter = Mth.clamp(exponentialValue / 0.25f, 0f, 1f);
+            float animSecondQuarter = Mth.clamp((exponentialValue - 0.25f) / 0.25f, 0f, 1f);
+            float animThirdQuarter = Mth.clamp((exponentialValue - 0.5f) / 0.25f, 0f, 1f);
+            float animFourthQuarter = Mth.clamp((exponentialValue - 0.75f) / 0.25f, 0f, 1f);
+
+            float movementMMain;
+            float movementMUp;
+            Vec3 movementM;
+
+            if (exponentialValue <= 0.25) {
+                movementMMain = (float) (0 / 16f + 0.25 / 16f * animFirstQuarter); // Main movement
+                movementMUp = (float) (0 / 16f - 2 / 16f * animFirstQuarter); // Upward movement
+                Vec3 moveOffsetM = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
+                movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
+            } else if (exponentialValue > 0.25 && exponentialValue <= 0.5) {
+                movementMMain = (float) (0.25 / 16f + 0.75 / 16f * animSecondQuarter);
+                movementMUp = (float) (-2 / 16f - 1.5 / 16f * animSecondQuarter);
+                Vec3 moveOffsetM = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
+                movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
+            } else if (exponentialValue > 0.5 && exponentialValue <= 0.75) {
+                movementMMain = (float) (1 / 16f + 1.25 / 16f * animThirdQuarter);
+                movementMUp = (float) (-3.5 / 16f - 1 / 16f * animThirdQuarter);
+                Vec3 moveOffsetM = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
+                movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
+            } else {
+                movementMMain = (float) (2.25 / 16f + 2.75 / 16f * animFourthQuarter);
+                movementMUp = (float) (-4.5 / 16f - 0.5 / 16f * animFourthQuarter);
+                Vec3 moveOffsetM = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
+                movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
+            }
+
+            partial_move.translate(movementM.x, movementM.y, movementM.z)
+                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                    .light(light)
+                    .renderInto(ms, vb);
+            //check if movementDirection is going north or south
+
+        }
     }
 }
