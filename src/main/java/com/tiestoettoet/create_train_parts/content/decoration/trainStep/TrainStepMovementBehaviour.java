@@ -2,6 +2,11 @@ package com.tiestoettoet.create_train_parts.content.decoration.trainStep;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
+
+import com.simibubi.create.content.contraptions.elevator.ElevatorColumn;
+import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock.ConnectedState;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
@@ -20,16 +25,27 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.createmod.catnip.animation.LerpedFloat.Chaser;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
+
+import static com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock.CONNECTED;
+import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
+
 public class TrainStepMovementBehaviour implements MovementBehaviour {
+
+    public static final BooleanProperty OPEN = BooleanProperty.create("open");
+
+
     @Override
     public boolean mustTickWhileDisabled() {return true;}
 
@@ -81,7 +97,7 @@ public class TrainStepMovementBehaviour implements MovementBehaviour {
                 .relative(facing);
         BlockState inWorldStepState = context.world.getBlockState(inWorldStep);
         if (inWorldStepState.getBlock() instanceof TrainStepBlock sb && inWorldStepState.hasProperty(TrainStepBlock.OPEN))
-            if (inWorldStepState.hasProperty(TrainStepBlock.FACING) && inWorldStepState.getOptionalValue(TrainStepBlock.FACING)
+            if (inWorldStepState.hasProperty(FACING) && inWorldStepState.getOptionalValue(FACING)
                     .orElse(Direction.UP)
                     .getAxis() == facing.getAxis())
                 sb.setOpen(null, context.world, inWorldStepState, inWorldStep, shouldOpen);
@@ -93,16 +109,21 @@ public class TrainStepMovementBehaviour implements MovementBehaviour {
 
     private void toggleStep(BlockPos pos, Contraption contraption, StructureTemplate.StructureBlockInfo info) {
         BlockState newState = info.state().cycle(TrainStepBlock.OPEN);
+//        toggleStepRow(info.state(), pos, null, null, null, contraption);
+//        BlockState updatedState =
         contraption.entity.setBlock(pos, new StructureTemplate.StructureBlockInfo(info.pos(), newState, info.nbt()));
 
+
         info = contraption.getBlocks()
-                .get(pos.relative(info.state().getValue(TrainStepBlock.FACING)));
+                .get(pos.relative(info.state().getValue(FACING)));
         if (info != null && info.state().hasProperty(TrainStepBlock.OPEN)) {
             newState = info.state().cycle(TrainStepBlock.OPEN);
-            contraption.entity.setBlock(pos.relative(info.state().getValue(TrainStepBlock.FACING)), new StructureTemplate.StructureBlockInfo(info.pos(), newState, info.nbt()));
+            contraption.entity.setBlock(pos.relative(info.state().getValue(FACING)), new StructureTemplate.StructureBlockInfo(info.pos(), newState, info.nbt()));
             contraption.invalidateColliders();
         }
     }
+
+
 
     protected boolean shouldUpdate(MovementContext context, boolean shouldOpen) {
         if (context.firstMovement && shouldOpen)
@@ -138,6 +159,9 @@ public class TrainStepMovementBehaviour implements MovementBehaviour {
 
         if (context.contraption.entity instanceof CarriageContraptionEntity cce)
             doorControls = getTrainStationStepControl(cce, context);
+        if (contraption instanceof ElevatorContraption ec) {
+            doorControls = getElevatorDoorControl(ec, context);
+        }
 
         if (doorControls == null)
             return false;
@@ -152,6 +176,20 @@ public class TrainStepMovementBehaviour implements MovementBehaviour {
         if (controller.mode == DoorControl.NONE)
             return false;
         return controller.mode.matches(getStepFacing(context));
+    }
+
+    protected DoorControlBehaviour getElevatorDoorControl(ElevatorContraption ec, MovementContext context) {
+        Integer currentTargetY = ec.getCurrentTargetY(context.world);
+        if (currentTargetY == null)
+            return null;
+        ElevatorColumn.ColumnCoords ColumnCoords = ec.getGlobalColumn();
+        if (ColumnCoords == null)
+            return null;
+        ElevatorColumn elevatorColumn = ElevatorColumn.get(context.world, ColumnCoords);
+        if (elevatorColumn == null)
+            return null;
+        return BlockEntityBehaviour.get(context.world, elevatorColumn.contactAt(currentTargetY),
+                DoorControlBehaviour.TYPE);
     }
 
     protected DoorControlBehaviour getTrainStationStepControl(CarriageContraptionEntity cce, MovementContext context) {
@@ -174,7 +212,7 @@ public class TrainStepMovementBehaviour implements MovementBehaviour {
     }
 
     protected Direction getStepFacing(MovementContext context) {
-        Direction stateFacing = context.state.getValue(TrainStepBlock.FACING);
+        Direction stateFacing = context.state.getValue(FACING);
         Direction originalFacing = Direction.get(Direction.AxisDirection.POSITIVE, stateFacing.getAxis());
         Vec3 centerOfContraption = context.contraption.bounds.getCenter();
         Vec3 diff = Vec3.atCenterOf(context.localPos)

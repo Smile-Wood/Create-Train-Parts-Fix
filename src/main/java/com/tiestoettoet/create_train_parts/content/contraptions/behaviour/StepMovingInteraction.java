@@ -5,10 +5,14 @@ import com.simibubi.create.content.contraptions.behaviour.SimpleBlockMovingInter
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+
+import static com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock.CONNECTED;
 
 public class StepMovingInteraction extends SimpleBlockMovingInteraction {
 
@@ -20,8 +24,8 @@ public class StepMovingInteraction extends SimpleBlockMovingInteraction {
         currentState = currentState.cycle(TrainStepBlock.OPEN);
         if (player != null) {
             if (trainStep) {
-                Direction facing = currentState.getValue(TrainStepBlock.FACING);
-
+                Boolean open = currentState.getValue(TrainStepBlock.OPEN);
+                toggleStep(currentState, pos, null, open, contraption);
             }
             float pitch = player.level().random.nextFloat() * 0.1F + 0.9F;
             if (sound != null)
@@ -29,6 +33,49 @@ public class StepMovingInteraction extends SimpleBlockMovingInteraction {
 
         }
         return currentState;
+    }
+
+    private void toggleStep(BlockState state, BlockPos pos, String ignore, Boolean open, Contraption contraption) {
+        if (ignore == null)
+            ignore = "";
+        Direction facing = state.getValue(TrainStepBlock.FACING);
+        TrainStepBlock.ConnectedState connected = state.getValue(CONNECTED);
+        if (connected == TrainStepBlock.ConnectedState.BOTH) {
+            BlockPos leftPos = pos.relative(facing.getClockWise());
+            BlockPos rightPos = pos.relative(facing.getCounterClockWise());
+            BlockState leftState = contraption.getBlocks()
+                    .get(leftPos).state();
+            BlockState rightState = contraption.getBlocks()
+                    .get(rightPos).state();
+            StructureTemplate.StructureBlockInfo leftInfo = contraption.getBlocks()
+                    .get(leftPos);
+            StructureTemplate.StructureBlockInfo rightInfo = contraption.getBlocks().get(rightPos);
+            if (leftInfo != null && leftInfo.state().getValue(CONNECTED) != TrainStepBlock.ConnectedState.NONE && !ignore.equals("left")) {
+//                handlePlayerInteraction(null, InteractionHand.MAIN_HAND, leftPos, contraption.entity);
+                toggleStep(leftState, leftPos, "right", open, contraption);
+            }
+            if (rightInfo != null && rightInfo.state().getValue(CONNECTED) != TrainStepBlock.ConnectedState.NONE && !ignore.equals("right")) {
+//                handlePlayerInteraction(null, InteractionHand.MAIN_HAND, rightPos, contraption.entity);
+                toggleStep(rightState, rightPos, "left", open, contraption);
+            }
+        } else if (connected == TrainStepBlock.ConnectedState.LEFT) {
+            BlockPos leftPos = pos.relative(facing.getClockWise());
+            StructureTemplate.StructureBlockInfo leftInfo = contraption.getBlocks()
+                    .get(leftPos);
+            if (leftInfo != null && leftInfo.state().getValue(CONNECTED) != TrainStepBlock.ConnectedState.NONE && !ignore.equals("left")) {
+//                handlePlayerInteraction(null, InteractionHand.MAIN_HAND, leftPos, contraption.entity);
+                toggleStep(leftInfo.state(), leftPos, "right", open, contraption);
+            }
+        } else if (connected == TrainStepBlock.ConnectedState.RIGHT) {
+            BlockPos rightPos = pos.relative(facing.getCounterClockWise());
+            StructureTemplate.StructureBlockInfo rightInfo = contraption.getBlocks()
+                    .get(rightPos);
+            if (rightInfo != null && rightInfo.state().getValue(CONNECTED) != TrainStepBlock.ConnectedState.NONE && !ignore.equals("right")) {
+//                handlePlayerInteraction(null, InteractionHand.MAIN_HAND, rightPos, contraption.entity);
+                toggleStep(rightInfo.state(), rightPos, "left", open, contraption);
+            }
+        }
+        handlePlayerInteraction(null, InteractionHand.MAIN_HAND, pos, contraption.entity);
     }
 
     @Override

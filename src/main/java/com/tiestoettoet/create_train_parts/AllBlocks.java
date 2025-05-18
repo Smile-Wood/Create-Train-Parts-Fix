@@ -19,9 +19,12 @@ public class AllBlocks {
         REGISTRATE.setCreativeTab(AllCreativeModeTabs.BASE_CREATIVE_TAB);
     }
     public static final BlockEntry<TrainStepBlock> TRAIN_STEP_ANDESITE = REGISTRATE.block("train_step_andesite", TrainStepBlock::new)
-            .transform(BuilderTransformers.trainStep("andesite", () -> AllSpriteShifts.TRAIN_STEP_ANDESITE))
             .properties(p -> p.mapColor(MapColor.PODZOL))
-            .lang("Andesite Step")
+            .transform(BuilderTransformers.trainStep("andesite", () -> AllSpriteShifts.TRAIN_STEP_ANDESITE))
+
+//            .lang("Andesite Step")
+//            .item()
+//            .transform(customItemModel())
             .register();
 //
 //    public static final BlockEntry<TrainStepBlock> TRAIN_STEP_BRASS = REGISTRATE.block("train_step_brass", TrainStepBlock::new)

@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
 import static com.simibubi.create.foundation.data.CreateRegistrate.casingConnectivity;
 import static com.simibubi.create.foundation.data.CreateRegistrate.connectedTextures;
+import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 
 public class BuilderTransformers {
@@ -32,20 +33,22 @@ public class BuilderTransformers {
     }
 
     public static <B extends TrainStepBlock, P> NonNullUnaryOperator<BlockBuilder<B, P>> trainStep(String type, Supplier<CTSpriteShiftEntry> ct, @Nullable Supplier<CTSpriteShiftEntry> ct2) {
-    return b -> b.initialProperties(() -> Blocks.IRON_DOOR)
-            .properties(p -> p.requiresCorrectToolForDrops()
-                    .strength(3.0F, 6.0F))
-            .blockstate(new TrainStepGenerator(type)::generate)
-            .addLayer(() -> RenderType::cutoutMipped)
-            .transform(pickaxeOnly())
-            .onRegister(connectedTextures(() -> ct2 != null ? new HorizontalCTBehaviour(ct.get(), ct2.get()) : new EncasedCTBehaviour(ct.get())))
-            .onRegister(casingConnectivity((block, cc) -> cc.makeCasing(block, ct.get())))
-            .onRegister(interactionBehaviour(new StepMovingInteraction()))
-            .onRegister(movementBehaviour(new TrainStepMovementBehaviour()))
-            .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
-            .item()
-            .tag(AllTags.AllItemTags.CONTRAPTION_CONTROLLED.tag)
-            .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/train_step" + type + "/steps_open")))
-            .build();
-}
+        return b -> b.initialProperties(() -> Blocks.IRON_DOOR)
+                .properties(p -> p.requiresCorrectToolForDrops()
+                        .strength(3.0F, 6.0F))
+                .blockstate(new TrainStepGenerator(type)::generate)
+                .addLayer(() -> RenderType::cutoutMipped)
+                .transform(pickaxeOnly())
+                .onRegister(connectedTextures(() -> ct2 != null ? new HorizontalCTBehaviour(ct.get(), ct2.get()) : new EncasedCTBehaviour(ct.get())))
+                .onRegister(casingConnectivity((block, cc) -> cc.makeCasing(block, ct.get())))
+                .onRegister(interactionBehaviour(new StepMovingInteraction()))
+                .onRegister(movementBehaviour(new TrainStepMovementBehaviour()))
+                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
+                .item()
+                .tag(AllTags.AllItemTags.CONTRAPTION_CONTROLLED.tag)
+//        .transform(customItemModel())
+                .model(AssetLookup.customBlockItemModel("train_step_" + type, "steps"))
+                .build();
+    }
+
 }

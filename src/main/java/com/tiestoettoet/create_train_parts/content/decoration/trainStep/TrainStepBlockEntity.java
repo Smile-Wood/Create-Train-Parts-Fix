@@ -44,6 +44,9 @@ public class TrainStepBlockEntity extends SmartBlockEntity {
                 bridgeTicks--;
             return;
         }
+
+        if (!open && !wasSettled && animation.settled() && !isVisible(getBlockState()))
+            showBlockModel();
     }
 
     @Override
@@ -52,13 +55,17 @@ public class TrainStepBlockEntity extends SmartBlockEntity {
     }
 
     protected boolean isVisible(BlockState state) {
-        return false;
+
+        return state.getOptionalValue(TrainStepBlock.VISIBLE)
+                .orElse(true);
     }
 
-    protected boolean shouldRenderSpecial(BlockState state) {return !isVisible(state) || bridgeTicks != 0;}
+    protected boolean shouldRenderSpecial(BlockState state) {
+        return !isVisible(state) || bridgeTicks != 0;
+    }
 
     protected void showBlockModel() {
-        level.setBlock(worldPosition, getBlockState().setValue(SlidingDoorBlock.VISIBLE, true), 3);
+        level.setBlock(worldPosition, getBlockState().setValue(TrainStepBlock.VISIBLE, true), 3);
         level.playSound(null, worldPosition, SoundEvents.IRON_DOOR_CLOSE, SoundSource.BLOCKS, .5f, 1);
     }
 
