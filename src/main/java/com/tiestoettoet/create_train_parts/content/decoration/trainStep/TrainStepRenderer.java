@@ -64,14 +64,11 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
             System.out.println("Data type is null");
             return;
         }
-        Direction face = facing;
-        ConnectedTextureBehaviour.CTContext context = behaviour.buildContext(world, pos, blockState, face,
-                dataType.getContextRequirement());
+//        Direction face = Direction.UP;
 
-        int textureIndex = dataType.getTextureIndex(context);
 //        int textureIndex = textureIndexV % 8;
 
-        CTSpriteShiftEntry spriteShift = AllSpriteShifts.ANDESITE_CASING;
+
 
         float rotationAngle = switch (facing) {
             case NORTH -> 0; // No rotation needed
@@ -89,38 +86,13 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
         VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
 
         if (blockState.getBlock() instanceof TrainStepBlock) {
+
+
             ResourceLocation blockTexture = BuiltInRegistries.BLOCK.getKey(blockState.getBlock());
             String blockTexturePath = blockTexture.getPath();
+            System.out.println("Block Texture Path: " + blockTexturePath);
             TrainStepBlock.ConnectedState connectedState = blockState.getValue(TrainStepBlock.CONNECTED);
-            ResourceLocation resourceLocation = CreateTrainParts.asResource(
-                    blockTexturePath + "/" + facing.getSerializedName() + "_" + connectedState.getSerializedName());
-            // System.out.println("Model path: " + resourceLocation);
-            PartialModel slide =
-                    // AllPartialModels.TRAIN_STEP_SLIDE.get(BuiltInRegistries.BLOCK.getKey(blockState.getBlock())
-                    // + "/" + facing.getSerializedName();
-                    AllPartialModels.TRAIN_STEP_SLIDE.get(resourceLocation);
-            PartialModel pivot = AllPartialModels.TRAIN_STEP_PIVOT.get(resourceLocation);
-            PartialModel move = AllPartialModels.TRAIN_STEP_MOVE.get(resourceLocation);
-            PartialModel flap = AllPartialModels.TRAIN_STEP_FLAP.get(resourceLocation);
-            PartialModel block = AllPartialModels.TRAIN_STEP.get(resourceLocation);
 
-            SuperByteBuffer partial_block = CachedBuffers.partial(block, blockState);
-            if (spriteShift == null) {
-                System.out.println("Sprite shift is null, using fallback texture.");
-                return;
-            }
-//            System.out.println("TextureIndex: " + textureIndex);
-            partial_block
-                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                    .shiftUVtoSheet(spriteShift, (textureIndex % 8f) / 8f, (textureIndex / 8f) / 8f, 8)
-                    // .shiftUV(connectedShift)
-                    .light(light)
-                    .renderInto(ms, vb);
-
-            SuperByteBuffer partial_slide = CachedBuffers.partial(slide, blockState);
-            SuperByteBuffer partial_pivot = CachedBuffers.partial(pivot, blockState);
-            SuperByteBuffer partial_move = CachedBuffers.partial(move, blockState);
-            SuperByteBuffer partial_flap = CachedBuffers.partial(flap, blockState);
 
             float f = blockState.getValue(TrainStepBlock.OPEN) ? -1 : 1;
 
@@ -130,11 +102,7 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
             Direction movementDirection = blockState.getValue(TrainStepBlock.OPEN) ? facing.getOpposite() : facing;
             // System.out.println("Movement Direction: " + movementDirection);
             Vec3 moveOffset = Vec3.atLowerCornerOf(movementDirection.getNormal()).scale(movement);
-            partial_slide.translate(moveOffset.x, moveOffset.y, moveOffset.z)
-                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                    .shiftUVtoSheet(spriteShift, (textureIndex % 8f) / 8f, (textureIndex / 8f) / 8f, 8)
-                    .light(light)
-                    .renderInto(ms, vb);
+
 
             // Vec3 pivotOrigin = new Vec3(10.5 / 16f, 15.5 / 16f, 8 / 16f); // Define the
             // origin point from the model file
@@ -161,12 +129,7 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                 // .renderInto(ms, vb);
                 // System.out.println("Rotation: " + (90 * (1 - value) * f - 90));
             }
-            partial_pivot.translate(moveOffsetP.x, 15.5 / 16f, moveOffsetP.z)
-                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                    .shiftUVtoSheet(spriteShift, (textureIndex % 8f) / 8f, (textureIndex / 8f) / 8f, 8)
-                    .rotateXDegrees(rotationPivot)
-                    .light(light)
-                    .renderInto(ms, vb);
+
 
             float animFirstHalf = Mth.clamp(exponentialValue / 0.5f, 0f, 1f);
             float animSecondHalf = Mth.clamp((exponentialValue - 0.5f) / 0.5f, 0f, 1f);
@@ -226,12 +189,7 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
             // movementF.z);
             // System.out.println("Value: " + value);
 
-            partial_flap.translate(movementF.x, movementF.y, movementF.z)
-                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                    .shiftUVtoSheet(spriteShift, (textureIndex % 8f) / 8f, (textureIndex / 8f) / 8f, 8)
-                    .rotateXDegrees(rotation)
-                    .light(light)
-                    .renderInto(ms, vb);
+
 
             float animFirstQuarter = Mth.clamp(exponentialValue / 0.25f, 0f, 1f);
             float animSecondQuarter = Mth.clamp((exponentialValue - 0.25f) / 0.25f, 0f, 1f);
@@ -264,11 +222,113 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                 movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
             }
 
-            partial_move.translate(movementM.x, movementM.y, movementM.z)
-                    .shiftUVtoSheet(spriteShift, (textureIndex % 8f) / 8f, (textureIndex / 8f) / 8f, 8)
-                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                    .light(light)
-                    .renderInto(ms, vb);
+            for (Direction face : Iterate.directions) {
+                ConnectedTextureBehaviour.CTContext context = behaviour.buildContext(world, pos, blockState, face,
+                        dataType.getContextRequirement());
+
+                int textureIndex = dataType.getTextureIndex(context);
+                if (facing == Direction.EAST && face != Direction.UP && face != Direction.DOWN)
+                    face = face.getCounterClockWise();
+                if (facing == Direction.SOUTH && face != Direction.UP && face != Direction.DOWN)
+                    face = face.getOpposite();
+                if (facing == Direction.WEST && face != Direction.UP && face != Direction.DOWN)
+                    face = face.getClockWise();
+
+
+
+                ResourceLocation resourceLocation = CreateTrainParts.asResource(
+                        blockTexturePath + "/" + facing.getSerializedName() + "_" + connectedState.getSerializedName() + "_" + face.getSerializedName());
+
+
+                PartialModel move = AllPartialModels.TRAIN_STEP_MOVE.get(resourceLocation);
+                PartialModel flap = AllPartialModels.TRAIN_STEP_FLAP.get(resourceLocation);
+                PartialModel block = AllPartialModels.TRAIN_STEP.get(resourceLocation);
+
+
+
+                PartialModel slide = AllPartialModels.TRAIN_STEP_SLIDE.get(resourceLocation);
+                PartialModel pivot = AllPartialModels.TRAIN_STEP_PIVOT.get(resourceLocation);
+
+                SuperByteBuffer partial_block = CachedBuffers.partial(block, blockState);
+                CTSpriteShiftEntry spriteShift = null;
+                if (blockTexturePath.equals("train_step_andesite"))
+                    spriteShift = AllSpriteShifts.ANDESITE_CASING;
+                else if (blockTexturePath.equals("train_step_brass"))
+                    spriteShift = AllSpriteShifts.BRASS_CASING;
+                else if (blockTexturePath.equals("train_step_copper"))
+                    spriteShift = AllSpriteShifts.COPPER_CASING;
+
+                if (spriteShift == null) {
+                    System.out.println("Sprite shift is null, using fallback texture.");
+                    return;
+                }
+//                System.out.println("TextureIndex: " + textureIndex + ", face: " + face + ", facing" + facing + ", connectedState: " + connectedState);
+
+
+
+                SuperByteBuffer partial_slide = CachedBuffers.partial(slide, blockState);
+                SuperByteBuffer partial_pivot = CachedBuffers.partial(pivot, blockState);
+                SuperByteBuffer partial_move = CachedBuffers.partial(move, blockState);
+                SuperByteBuffer partial_flap = CachedBuffers.partial(flap, blockState);
+                float row = Math.floorDiv(textureIndex, 8);
+                float column = textureIndex % 8;
+                float u = (column) / 8f;
+                float v = (row) / 8f;
+
+                partial_block
+                        .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                        .shiftUVtoSheet(spriteShift, u, v, 8)
+                        // .shiftUV(connectedShift)
+                        .light(light)
+                        .renderInto(ms, vb);
+
+                partial_flap.translate(movementF.x, movementF.y, movementF.z)
+                        .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                        .shiftUVtoSheet(spriteShift, u, v, 8)
+                        .rotateXDegrees(rotation)
+                        .light(light)
+                        .renderInto(ms, vb);
+                partial_move.translate(movementM.x, movementM.y, movementM.z)
+                        .shiftUVtoSheet(spriteShift, u, v, 8)
+                        .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                        .light(light)
+                        .renderInto(ms, vb);
+
+//                if (facing == Direction.EAST || facing == Direction.WEST)
+//                    if (face == Direction.UP) {
+//                        context = behaviour.buildContext(world, pos, blockState, facing,
+//                                dataType.getContextRequirement());
+//
+//                        textureIndex = dataType.getTextureIndex(context);
+//                        row = Math.floorDiv(textureIndex, 8);
+//                        column = textureIndex % 8;
+//                        u = (column) / 8f;
+//                        v = (row) / 8f;
+//                    }
+                partial_slide.translate(moveOffset.x, moveOffset.y, moveOffset.z)
+                        .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                        .shiftUVtoSheet(spriteShift, u, v, 8)
+                        .light(light)
+                        .renderInto(ms, vb);
+//                if (facing == Direction.EAST || facing == Direction.WEST)
+//                    if (face.getOpposite() == facing) {
+//                        context = behaviour.buildContext(world, pos, blockState, facing,
+//                                dataType.getContextRequirement());
+//
+//                        textureIndex = dataType.getTextureIndex(context);
+//                        row = Math.floorDiv(textureIndex, 8);
+//                        column = textureIndex % 8;
+//                        u = (column) / 8f;
+//                        v = (row) / 8f;
+//                    }
+                partial_pivot.translate(moveOffsetP.x, 15.5 / 16f, moveOffsetP.z)
+                        .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                        .shiftUVtoSheet(spriteShift, u, v, 8)
+                        .rotateXDegrees(rotationPivot)
+                        .light(light)
+                        .renderInto(ms, vb);
+
+            }
             // check if movementDirection is going north or south
 
         }

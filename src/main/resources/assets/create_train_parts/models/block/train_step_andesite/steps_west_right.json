@@ -26,6 +26,7 @@
 			}
 		},
 		{
+			"name": "Flat",
 			"from": [0, 0, 5],
 			"to": [15, 1, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, -8]},

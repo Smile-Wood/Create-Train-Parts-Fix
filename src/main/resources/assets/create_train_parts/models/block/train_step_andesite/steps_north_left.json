@@ -10,7 +10,7 @@
 			"to": [16, 16, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, -8]},
 			"faces": {
-				"north": {"uv": [0, 6, 15, 11], "texture": "#0"},
+				"north": {"uv": [0, 5, 15, 10], "texture": "#0"},
 				"south": {"uv": [1, 0, 16, 5], "texture": "#0"},
 				"up": {"uv": [1, 11, 16, 16], "texture": "#0"}
 			}
@@ -21,11 +21,12 @@
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, -8]},
 			"faces": {
 				"north": {"uv": [0, 10, 15, 15], "texture": "#0"},
-				"up": {"uv": [0, 5, 15, 10], "rotation": 180, "texture": "#0"},
+				"up": {"uv": [15, 5, 0, 10], "texture": "#0"},
 				"down": {"uv": [1, 11, 16, 16], "texture": "#0"}
 			}
 		},
 		{
+			"name": "Flat",
 			"from": [1, 0, 5],
 			"to": [16, 1, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, -8]},

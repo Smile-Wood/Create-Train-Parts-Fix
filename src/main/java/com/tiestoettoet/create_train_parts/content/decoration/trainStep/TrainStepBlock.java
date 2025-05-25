@@ -2,6 +2,8 @@ package com.tiestoettoet.create_train_parts.content.decoration.trainStep;
 
 import com.mojang.serialization.MapCodec;
 import com.tiestoettoet.create_train_parts.AllBlockEntityTypes;
+import com.tiestoettoet.create_train_parts.AllBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
@@ -16,6 +18,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -70,6 +73,8 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
 
     private final BlockSetType type = BlockSetType.OAK;
 
+    public static final EnumProperty<TrainStepType> TYPE = EnumProperty.create("type", TrainStepType.class);
+
     @Override
     protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
         return null;
@@ -79,6 +84,7 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         super(properties);
     }
 
+    @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (!(Boolean) state.getValue(OPEN)) {
             return CLOSED;
@@ -119,6 +125,9 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         Direction facing = pContext.getHorizontalDirection().getOpposite();
         Level level = pContext.getLevel();
         String function = "getStateForPlacement";
+        // set the correct type
+
+        TrainStepType type = determineType(pContext.getItemInHand());
 
         // state = getState(state, pos, level, facing, function);
 
@@ -148,12 +157,29 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                     .setValue(VISIBLE, !open)
                     .setValue(POWERED, open)
                     .setValue(FACING, facing)
-                    .setValue(CONNECTED, state.getValue(CONNECTED));
+                    .setValue(CONNECTED, state.getValue(CONNECTED))
+                    .setValue(TYPE, type);
         }
 
         return stateForPlacement;
     }
 
+    private TrainStepType determineType(ItemStack item) {
+        // Example logic to determine type based on the item
+        if (item.is(AllBlocks.TRAIN_STEP_ANDESITE.asItem())) {
+            return TrainStepType.ANDESITE;
+        } else if (item.is(AllBlocks.TRAIN_STEP_BRASS.asItem())) {
+            return TrainStepType.BRASS;
+        } else if (item.is(AllBlocks.TRAIN_STEP_COPPER.asItem())) {
+            return TrainStepType.COPPER;
+        }
+        // else if (item.is(AllBlocks.TRAIN_STEP_TRAIN.asItem())) {
+        // return TrainStepType.TRAIN;
+        // }
+        return TrainStepType.ANDESITE; // Default type
+    }
+
+    @Override
     protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
         return switch (pathComputationType) {
             case LAND, AIR -> (Boolean) state.getValue(OPEN);
@@ -161,12 +187,14 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         };
     }
 
+    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hitResult) {
         toggle(state, level, pos, player, null, null);
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
+    @Override
     protected void onExplosionHit(BlockState state, Level level, BlockPos pos, Explosion explosion,
             BiConsumer<ItemStack, BlockPos> dropConsumer) {
         if (explosion.canTriggerBlocks() && this.type.canOpenByWindCharge() && !(Boolean) state.getValue(POWERED)) {
@@ -175,6 +203,7 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
 
         super.onExplosionHit(state, level, pos, explosion, dropConsumer);
     }
+
     private void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
             Boolean open) {
         toggle(state, level, pos, player, ignore, open, 10);
@@ -196,36 +225,41 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         BlockState otherStepRightState = null;
         BlockPos otherStepLeft = null;
         BlockPos otherStepRight = null;
+        // System.out.println("Toggle called with state: " + state + ", pos: " + pos +
+        // ", player: " + player
+        // + ", ignore: " + ignore + ", open: " + open + ", flags: " + flags);
         if (state.getValue(CONNECTED) == ConnectedState.BOTH) {
             otherStepLeftState = (BlockState) getNeighbors(level, pos).get("left").get("state");
             otherStepRightState = (BlockState) getNeighbors(level, pos).get("right").get("state");
             if (otherStepLeftState.getBlock() instanceof TrainStepBlock && otherStepLeftState.getValue(FACING) == facing
                     && !ignore.equals("left")) {
-                otherStepLeftState = otherStepLeftState.setValue(OPEN, open);
+                otherStepLeftState = otherStepLeftState.setValue(OPEN, open).setValue(POWERED, state.getValue(POWERED));
                 otherStepLeft = (BlockPos) getNeighbors(level, pos).get("left").get("pos");
-                toggle(otherStepLeftState, level, otherStepLeft, player, "right", open);
+                toggle(otherStepLeftState, level, otherStepLeft, player, "right", open, flags);
             }
             if (otherStepRightState.getBlock() instanceof TrainStepBlock
                     && otherStepRightState.getValue(FACING) == facing && !ignore.equals("right")) {
-                otherStepRightState = otherStepRightState.setValue(OPEN, open);
+                otherStepRightState = otherStepRightState.setValue(OPEN, open).setValue(POWERED,
+                        state.getValue(POWERED));
                 otherStepRight = (BlockPos) getNeighbors(level, pos).get("right").get("pos");
-                toggle(otherStepRightState, level, otherStepRight, player, "left", open);
+                toggle(otherStepRightState, level, otherStepRight, player, "left", open, flags);
             }
         } else if (state.getValue(CONNECTED) == ConnectedState.LEFT) {
             otherStepLeftState = (BlockState) getNeighbors(level, pos).get("left").get("state");
             if (otherStepLeftState.getBlock() instanceof TrainStepBlock && otherStepLeftState.getValue(FACING) == facing
                     && !ignore.equals("left")) {
-                otherStepLeftState = otherStepLeftState.setValue(OPEN, open);
+                otherStepLeftState = otherStepLeftState.setValue(OPEN, open).setValue(POWERED, state.getValue(POWERED));
                 otherStepLeft = (BlockPos) getNeighbors(level, pos).get("left").get("pos");
-                toggle(otherStepLeftState, level, otherStepLeft, player, "right", open);
+                toggle(otherStepLeftState, level, otherStepLeft, player, "right", open, flags);
             }
         } else if (state.getValue(CONNECTED) == ConnectedState.RIGHT) {
             otherStepRightState = (BlockState) getNeighbors(level, pos).get("right").get("state");
             if (otherStepRightState.getBlock() instanceof TrainStepBlock
                     && otherStepRightState.getValue(FACING) == facing && !ignore.equals("right")) {
-                otherStepRightState = otherStepRightState.setValue(OPEN, open);
+                otherStepRightState = otherStepRightState.setValue(OPEN, open).setValue(POWERED,
+                        state.getValue(POWERED));
                 otherStepRight = (BlockPos) getNeighbors(level, pos).get("right").get("pos");
-                toggle(otherStepRightState, level, otherStepRight, player, "left", open);
+                toggle(otherStepRightState, level, otherStepRight, player, "left", open, flags);
             }
         }
 
@@ -252,15 +286,16 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
 
     }
 
+    @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
             boolean isMoving) {
         if (!(state.getBlock() instanceof TrainStepBlock))
             return;
 
-
-
         boolean isPowered = isStepPowered(level, pos, state);
-//        if (isPowered == state.getValue(POWERED))
+        BlockState neighborState = level.getBlockState(fromPos);
+
+//         if (isPowered == state.getValue(POWERED))
 //            return;
         Direction facing = state.getValue(FACING);
         String function = "neighborChanged";
@@ -271,18 +306,17 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
             newState = newState.setValue(VISIBLE, false);
         }
 
-        System.out.println("State:" + state);
-        System.out.println("NewState:" + newState);
+        // System.out.println("State:" + state);
+        // System.out.println("NewState:" + newState);
 
         level.setBlock(pos, newState, 2);
         if (isPowered != state.getValue(OPEN)) {
-//            level.gameEvent(null, isPowered ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
+            // level.gameEvent(null, isPowered ? GameEvent.BLOCK_OPEN :
+            // GameEvent.BLOCK_CLOSE, pos);
+            newState = level.getBlockState(pos);
             newState = newState.cycle(OPEN);
-            toggle(newState, level, pos, null, null, isPowered, 2);
+            toggle(newState, level, pos, null, null, !isPowered, 2);
         }
-
-
-
 
         // if (defaultBlockState().is(block))
         // return;
@@ -294,7 +328,7 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         // if (be != null && be.deferUpdate) {
         // return;
         // }
-//        level.setBlock(pos, newState, 2);
+        // level.setBlock(pos, newState, 2);
 
         // if (isPowered)
         // changedState = changedState.setValue(VISIBLE, false);
@@ -358,9 +392,10 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
             BlockState nextRightState = level.getBlockState(nextRightPos);
             boolean blockLeft = false;
             boolean blockRight = false;
-            if (nextLeftState.getBlock() instanceof TrainStepBlock && nextLeftState.getValue(FACING) == facing)
+            // check if the neighbour block is the same trainstepblock type
+            if (nextLeftState.getBlock() instanceof TrainStepBlock && nextLeftState.getValue(FACING) == facing && state.getValue(TYPE) == nextLeftState.getValue(TYPE))
                 blockLeft = true;
-            if (nextRightState.getBlock() instanceof TrainStepBlock && nextRightState.getValue(FACING) == facing)
+            if (nextRightState.getBlock() instanceof TrainStepBlock && nextRightState.getValue(FACING) == facing && state.getValue(TYPE) == nextRightState.getValue(TYPE))
                 blockRight = true;
             if (blockLeft && blockRight) {
                 finalState = state.setValue(CONNECTED, ConnectedState.BOTH);
@@ -380,9 +415,9 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
             BlockState nextRightState = level.getBlockState(nextRightPos);
             boolean blockLeft = false;
             boolean blockRight = false;
-            if (nextLeftState.getBlock() instanceof TrainStepBlock && nextLeftState.getValue(FACING) == facing)
+            if (nextLeftState.getBlock() instanceof TrainStepBlock && nextLeftState.getValue(FACING) == facing && state.getValue(TYPE) == nextLeftState.getValue(TYPE))
                 blockLeft = true;
-            if (nextRightState.getBlock() instanceof TrainStepBlock && nextRightState.getValue(FACING) == facing)
+            if (nextRightState.getBlock() instanceof TrainStepBlock && nextRightState.getValue(FACING) == facing && state.getValue(TYPE) == nextRightState.getValue(TYPE))
                 blockRight = true;
             if (blockLeft && blockRight) {
                 finalState = state.setValue(CONNECTED, ConnectedState.BOTH);
@@ -418,7 +453,7 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, OPEN, POWERED, CONNECTED, VISIBLE);
+        builder.add(FACING, OPEN, POWERED, CONNECTED, VISIBLE, TYPE);
     }
 
     protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level,
@@ -470,13 +505,13 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
 
         NORTH_OPEN_LEFT = Stream.of(
                 Stream.of(
-                        Block.box(1, 11, 11, 15, 16, 16),
+                        Block.box(1, 11, 11, 16, 16, 16),
                         Stream.of(
                                 Block.box(1, 11, 10, 16, 16, 11),
                                 Block.box(1, 6, 5, 16, 11, 11),
                                 Block.box(1, 5, 5, 16, 6, 10)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
                                 .get(),
-                        Shapes.join(Block.box(1, 1, 0, 15, 6, 5), Block.box(1, 0, -5, 16, 1, 0), BooleanOp.OR),
+                        Shapes.join(Block.box(1, 1, 0, 16, 6, 5), Block.box(1, 0, -5, 16, 1, 0), BooleanOp.OR),
                         Block.box(1, 0, 5, 16, 1, 16),
                         Block.box(1, 1, 15, 16, 11, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get(),
                 Block.box(0, 0, 0, 1, 16, 16)

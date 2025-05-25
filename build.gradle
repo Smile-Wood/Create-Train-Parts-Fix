@@ -194,3 +194,17 @@ idea {
         downloadJavadoc = true
     }
 }
+
+//tasks.register('generateModels', Exec) {
+//    group = 'model generation'
+//    description = 'Runs the Python script to generate models.'
+//
+//    // Path to the Python executable
+//    commandLine 'python', './build_models.py'
+//
+//    // Optional: Set the working directory if needed
+//    workingDir = file('.')
+//
+//    // Optional: Pass arguments to the Python script
+//    // args 'arg1', 'arg2'
+//}

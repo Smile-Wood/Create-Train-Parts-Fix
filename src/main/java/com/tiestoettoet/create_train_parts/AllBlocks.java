@@ -21,10 +21,14 @@ public class AllBlocks {
     public static final BlockEntry<TrainStepBlock> TRAIN_STEP_ANDESITE = REGISTRATE.block("train_step_andesite", TrainStepBlock::new)
             .properties(p -> p.mapColor(MapColor.PODZOL))
             .transform(BuilderTransformers.trainStep("andesite", () -> AllSpriteShifts.TRAIN_STEP_ANDESITE))
-
-//            .lang("Andesite Step")
-//            .item()
-//            .transform(customItemModel())
+            .register();
+    public static final BlockEntry<TrainStepBlock> TRAIN_STEP_BRASS = REGISTRATE.block("train_step_brass", TrainStepBlock::new)
+            .properties(p -> p.mapColor(MapColor.PODZOL))
+            .transform(BuilderTransformers.trainStep("brass", () -> AllSpriteShifts.TRAIN_STEP_BRASS))
+            .register();
+    public static final BlockEntry<TrainStepBlock> TRAIN_STEP_COPPER = REGISTRATE.block("train_step_copper", TrainStepBlock::new)
+            .properties(p -> p.mapColor(MapColor.PODZOL))
+            .transform(BuilderTransformers.trainStep("copper", () -> AllSpriteShifts.TRAIN_STEP_COPPER))
             .register();
 //
 //    public static final BlockEntry<TrainStepBlock> TRAIN_STEP_BRASS = REGISTRATE.block("train_step_brass", TrainStepBlock::new)
