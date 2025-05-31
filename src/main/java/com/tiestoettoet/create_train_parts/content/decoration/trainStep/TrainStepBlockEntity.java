@@ -5,6 +5,7 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.Blocks;
@@ -12,16 +13,21 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TrainStepBlockEntity extends SmartBlockEntity {
     LerpedFloat animation;
     int bridgeTicks;
     boolean deferUpdate;
+    Map<String, BlockState> neighborStates = new HashMap<>();
+    TrainStepType trainStepType;
+
     public TrainStepBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         animation = LerpedFloat.linear()
-            .startWithValue(isOpen(getBlockState()) ? 1 : 0);
+                .startWithValue(isOpen(getBlockState()) ? 1 : 0);
     }
 
     @Override
@@ -60,6 +66,33 @@ public class TrainStepBlockEntity extends SmartBlockEntity {
                 .orElse(true);
     }
 
+    public void setNeighborState(BlockState state) {
+        if (level == null)
+            return; // Ensure the level is not null
+
+        Direction facing = state.getValue(TrainStepBlock.FACING); // Get the block's facing direction
+        BlockPos leftPos = worldPosition.relative(facing.getCounterClockWise()); // Calculate left neighbor position
+        BlockPos rightPos = worldPosition.relative(facing.getClockWise()); // Calculate right neighbor position
+
+        BlockState leftState = level.getBlockState(leftPos); // Get the left neighbor's state
+        BlockState rightState = level.getBlockState(rightPos); // Get the right neighbor's state
+
+        neighborStates.put("left", leftState); // Store the left state
+        neighborStates.put("right", rightState); // Store the right state
+    }
+
+    public Map<String, BlockState> getNeighborStates() {
+        return neighborStates; // Return the map of neighbor states
+    }
+
+    public void setTrainStepType(TrainStepType trainStepType) {
+        this.trainStepType = trainStepType;
+    }
+
+    public TrainStepType getTrainStepType() {
+        return trainStepType;
+    }
+
     protected boolean shouldRenderSpecial(BlockState state) {
         return !isVisible(state) || bridgeTicks != 0;
     }
@@ -70,7 +103,8 @@ public class TrainStepBlockEntity extends SmartBlockEntity {
     }
 
     @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+    }
 
     public static boolean isOpen(BlockState state) {
         return state.getOptionalValue(TrainStepBlock.OPEN)

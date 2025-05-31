@@ -119,15 +119,30 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
     }
 
     @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+        super.onPlace(state, level, pos, oldState, isMoving);
+        if (!level.isClientSide) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof TrainStepBlockEntity trainStepBlockEntity) {
+                trainStepBlockEntity.setNeighborState(state);
+            }
+        }
+    }
+
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
         BlockPos pos = pContext.getClickedPos(); // Retrieve the BlockPos
         BlockState state = pContext.getLevel().getBlockState(pos);
         Direction facing = pContext.getHorizontalDirection().getOpposite();
         Level level = pContext.getLevel();
         String function = "getStateForPlacement";
+
+
         // set the correct type
 
         TrainStepType type = determineType(pContext.getItemInHand());
+
+//        System.out.println("Determined TrainStepType: " + type);
 
         // state = getState(state, pos, level, facing, function);
 
@@ -146,13 +161,22 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
             open = true;
         }
 
-        System.out.println("Left Block: " + leftState.getBlock() + ", OPEN: "
-                + (leftState.hasProperty(OPEN) ? leftState.getValue(OPEN) : "N/A"));
-        System.out.println("Right Block: " + rightState.getBlock() + ", OPEN: "
-                + (rightState.hasProperty(OPEN) ? rightState.getValue(OPEN) : "N/A"));
+//        System.out.println("Left Block: " + leftState.getBlock() + ", OPEN: "
+//                + (leftState.hasProperty(OPEN) ? leftState.getValue(OPEN) : "N/A"));
+//        System.out.println("Right Block: " + rightState.getBlock() + ", OPEN: "
+//                + (rightState.hasProperty(OPEN) ? rightState.getValue(OPEN) : "N/A"));
+
+        Level levelForPlacement = pContext.getLevel();
+        BlockEntity blockEntity = levelForPlacement.getBlockEntity(pos);
+        if (blockEntity instanceof TrainStepBlockEntity trainStepBlockEntity) {
+            trainStepBlockEntity.setTrainStepType(type); // Set the type in the block entity
+        }
+
 
         if (stateForPlacement != null && stateForPlacement.getValue(OPEN)) {
+            stateForPlacement = stateForPlacement.setValue(TYPE, type);
             state = getState(stateForPlacement, pos, level, facing, function);
+//            System.out.println(state);
             return stateForPlacement.setValue(OPEN, open)
                     .setValue(VISIBLE, !open)
                     .setValue(POWERED, open)
@@ -166,12 +190,16 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
 
     private TrainStepType determineType(ItemStack item) {
         // Example logic to determine type based on the item
-        if (item.is(AllBlocks.TRAIN_STEP_ANDESITE.asItem())) {
+//        System.out.println("Determining TrainStepType for item: " + item.getItem());
+//        System.out.println("Brass Item: " + AllBlocks.TRAIN_STEP_BRASS.asItem());
+        if (item.getItem() == AllBlocks.TRAIN_STEP_ANDESITE.asItem()) {
             return TrainStepType.ANDESITE;
-        } else if (item.is(AllBlocks.TRAIN_STEP_BRASS.asItem())) {
+        } else if (item.getItem() == AllBlocks.TRAIN_STEP_BRASS.asItem()) {
             return TrainStepType.BRASS;
-        } else if (item.is(AllBlocks.TRAIN_STEP_COPPER.asItem())) {
+        } else if (item.getItem() == AllBlocks.TRAIN_STEP_COPPER.asItem()) {
             return TrainStepType.COPPER;
+        } else if (item.getItem() == AllBlocks.TRAIN_STEP_TRAIN.asItem()) {
+            return TrainStepType.TRAIN;
         }
         // else if (item.is(AllBlocks.TRAIN_STEP_TRAIN.asItem())) {
         // return TrainStepType.TRAIN;
@@ -288,48 +316,101 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
-            boolean isMoving) {
+                                   boolean isMoving) {
         if (!(state.getBlock() instanceof TrainStepBlock))
             return;
 
+
+
         //check if the neighbour was a block placement
-        if (fromPos.equals(pos) || fromPos.equals(pos.relative(state.getValue(FACING)))) {
-            return; // Ignore self or direct neighbor changes
-        }
-
-        boolean isPowered = isStepPowered(level, pos, state);
-
-        BlockState neighborState = level.getBlockState(fromPos);
-        boolean powered = state.getValue(POWERED);
-        boolean open = isStepOpen(state);
-//        if (open) {
-//            // If the block is not powered and open, we should close it
-//            isPowered = true; // Force it to be powered to close
+//        if (fromPos.equals(pos) || fromPos.equals(pos.relative(state.getValue(FACING)))) {
+//            return; // Ignore self or direct neighbor changes
 //        }
+//
+        boolean isPowered = isStepPowered(level, pos, state);
+        boolean powered = state.getValue(POWERED);
+        boolean open = state.getValue(OPEN);
 
-        boolean shouldBeOpen = false;
+        TrainStepType type = state.getValue(TYPE);
+
+//        System.out.println("Is Powered: " + isPowered + ", Powered: " + powered + ", Open: " + open + ", Type: " + type);
 
 
-        // if (isPowered == state.getValue(POWERED))
-        // return;
-        Direction facing = state.getValue(FACING);
-        String function = "neighborChanged";
-        BlockState newState = getState(state, pos, level, facing, function);
+        BlockState leftState = level.getBlockState(pos.relative(state.getValue(FACING).getCounterClockWise()));
+        BlockState rightState = level.getBlockState(pos.relative(state.getValue(FACING).getClockWise()));
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof TrainStepBlockEntity trainStepBlockEntity) {
+            Map<String, BlockState> neighborStates = trainStepBlockEntity.getNeighborStates();
+            @Nullable
+            BlockState oldLeftState = neighborStates.get("left");
+            @Nullable
+            BlockState oldRightState = neighborStates.get("right");
+            if ((oldLeftState != null && leftState.getBlock() != oldLeftState.getBlock()) || (oldRightState != null && rightState.getBlock() != oldRightState.getBlock())) {
+                System.out.println("Neighbor changed detected: Left State: " + leftState.getBlock() + ", Right State: " + rightState.getBlock() + ", Old Left State: " + oldLeftState.getBlock() + ", Old Right State: " + oldRightState.getBlock());
+                state = getState(state, pos, level, state.getValue(FACING), "neighborChanged");
+                state = state.setValue(POWERED, powered)
+                        .setValue(OPEN, open)
+//                        .setValue(VISIBLE, !open)
+                        .setValue(TYPE, type);
 
-        newState = newState.setValue(POWERED, isPowered).setValue(OPEN, isPowered);
-        if (isPowered) {
-            newState = newState.setValue(VISIBLE, false);
+                level.setBlock(pos, state, 2);
+//                toggle(state, level, pos, null, null, !open, 2);
+
+            } else {
+                level.setBlock(pos, state, 2); // Update the block state without changing OPEN or POWERED
+            }
+        } else {
+            level.setBlock(pos, state, 2); // Update the block state without changing OPEN or POWERED
         }
 
-        // System.out.println("State:" + state);
-        // System.out.println("NewState:" + newState);
+        if (isPowered != powered) {
+//            state = state.cycle(OPEN);
+            state = state.setValue(POWERED, isPowered);
+            state = state.setValue(OPEN, !isPowered);
+//            state = state.setValue(VISIBLE, !isPowered);
+            toggle(state, level, pos, null, null, !isPowered, 2);
+//            level.gameEvent(null, isPowered ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
+        } else {
+            level.setBlock(pos, state, 2); // Update the block state without changing OPEN or POWERED
+        }
 
-        level.setBlock(pos, newState, 2);
-             // level.gameEvent(null, isPowered ? GameEvent.BLOCK_OPEN :
-             // GameEvent.BLOCK_CLOSE, pos);
-        newState = level.getBlockState(pos);
-        newState = newState.cycle(OPEN);
-        toggle(newState, level, pos, null, null, !isPowered, 2);
+//        level.setBlock(pos, state, 2);
+//
+//        BlockState neighborState = level.getBlockState(fromPos);
+//        boolean powered = state.getValue(POWERED);
+//        boolean open = isStepOpen(state);
+////        if (open) {
+////            // If the block is not powered and open, we should close it
+////            isPowered = true; // Force it to be powered to close
+////        }
+//
+//        boolean shouldBeOpen = false;
+//
+//
+//        // if (isPowered == state.getValue(POWERED))
+//        // return;
+//        Direction facing = state.getValue(FACING);
+//        String function = "neighborChanged";
+//        BlockState newState = getState(state, pos, level, facing, function);
+//
+//        newState = newState.setValue(POWERED, isPowered).setValue(OPEN, isPowered);
+//        if (isPowered) {
+//            newState = newState.setValue(VISIBLE, false);
+//        }
+//
+//        // System.out.println("State:" + state);
+//        // System.out.println("NewState:" + newState);
+//
+//        level.setBlock(pos, newState, 2);
+//        // level.gameEvent(null, isPowered ? GameEvent.BLOCK_OPEN :
+//        // GameEvent.BLOCK_CLOSE, pos);
+//        newState = level.getBlockState(pos);
+//        newState = newState.cycle(OPEN);
+//        toggle(newState, level, pos, null, null, !isPowered, 2);
+//        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof TrainStepBlockEntity trainStepBlockEntity) {
+            trainStepBlockEntity.setNeighborState(state);
+        }
 
 //        if (isPowered != state.getValue(POWERED)) {
 //            // BlockState newState = state.setValue(POWERED, isPowered).setValue(OPEN,
@@ -411,6 +492,7 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
     public static BlockState getState(BlockState state, BlockPos pos, Level level, Direction facing, String function) {
         // System.out.println("getState called from " + function + " with pos: " + pos +
         // " and facing: " + facing);
+//        System.out.println("Type: " + state.getValue(TYPE));
         BlockState finalState;
         if (facing == Direction.NORTH || facing == Direction.SOUTH) {
             // look in x axis

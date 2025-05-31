@@ -38,7 +38,7 @@ public class AllPartialModels {
     public static final Map<ResourceLocation, PartialModel> TRAIN_STEP_FLAP= new HashMap<>();
 
     static {
-//        putTrainStep("train_step_train");
+        putTrainStep("train_step_train");
         putTrainStep("train_step_andesite");
         putTrainStep("train_step_brass");
         putTrainStep("train_step_copper");

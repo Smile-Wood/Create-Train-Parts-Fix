@@ -30,6 +30,14 @@ public class AllBlocks {
             .properties(p -> p.mapColor(MapColor.PODZOL))
             .transform(BuilderTransformers.trainStep("copper", () -> AllSpriteShifts.TRAIN_STEP_COPPER))
             .register();
+
+    public static final BlockEntry<TrainStepBlock> TRAIN_STEP_TRAIN = REGISTRATE.block("train_step_train", TrainStepBlock::new)
+            .properties(p -> p.mapColor(MapColor.PODZOL)
+                    .sound(SoundType.NETHERITE_BLOCK))
+            .transform(BuilderTransformers.trainStep("train",
+//                    () -> AllSpriteShifts.TRAIN_STEP_SIDE,
+                    () -> com.simibubi.create.AllSpriteShifts.RAILWAY_CASING))
+            .register();
 //
 //    public static final BlockEntry<TrainStepBlock> TRAIN_STEP_BRASS = REGISTRATE.block("train_step_brass", TrainStepBlock::new)
 //            .transform(BuilderTransformers.trainStep("brass", () -> AllSpriteShifts.TRAIN_STEP_BRASS))

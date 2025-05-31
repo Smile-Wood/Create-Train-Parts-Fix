@@ -64,11 +64,9 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
             System.out.println("Data type is null");
             return;
         }
-//        Direction face = Direction.UP;
+        // Direction face = Direction.UP;
 
-//        int textureIndex = textureIndexV % 8;
-
-
+        // int textureIndex = textureIndexV % 8;
 
         float rotationAngle = switch (facing) {
             case NORTH -> 0; // No rotation needed
@@ -87,12 +85,10 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
 
         if (blockState.getBlock() instanceof TrainStepBlock) {
 
-
             ResourceLocation blockTexture = BuiltInRegistries.BLOCK.getKey(blockState.getBlock());
             String blockTexturePath = blockTexture.getPath();
-            System.out.println("Block Texture Path: " + blockTexturePath);
+            // System.out.println("Block Texture Path: " + blockTexturePath);
             TrainStepBlock.ConnectedState connectedState = blockState.getValue(TrainStepBlock.CONNECTED);
-
 
             float f = blockState.getValue(TrainStepBlock.OPEN) ? -1 : 1;
 
@@ -102,7 +98,6 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
             Direction movementDirection = blockState.getValue(TrainStepBlock.OPEN) ? facing.getOpposite() : facing;
             // System.out.println("Movement Direction: " + movementDirection);
             Vec3 moveOffset = Vec3.atLowerCornerOf(movementDirection.getNormal()).scale(movement);
-
 
             // Vec3 pivotOrigin = new Vec3(10.5 / 16f, 15.5 / 16f, 8 / 16f); // Define the
             // origin point from the model file
@@ -129,7 +124,6 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                 // .renderInto(ms, vb);
                 // System.out.println("Rotation: " + (90 * (1 - value) * f - 90));
             }
-
 
             float animFirstHalf = Mth.clamp(exponentialValue / 0.5f, 0f, 1f);
             float animSecondHalf = Mth.clamp((exponentialValue - 0.5f) / 0.5f, 0f, 1f);
@@ -189,8 +183,6 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
             // movementF.z);
             // System.out.println("Value: " + value);
 
-
-
             float animFirstQuarter = Mth.clamp(exponentialValue / 0.25f, 0f, 1f);
             float animSecondQuarter = Mth.clamp((exponentialValue - 0.25f) / 0.25f, 0f, 1f);
             float animThirdQuarter = Mth.clamp((exponentialValue - 0.5f) / 0.25f, 0f, 1f);
@@ -234,37 +226,49 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                 if (facing == Direction.WEST && face != Direction.UP && face != Direction.DOWN)
                     face = face.getClockWise();
 
-
-
                 ResourceLocation resourceLocation = CreateTrainParts.asResource(
-                        blockTexturePath + "/" + facing.getSerializedName() + "_" + connectedState.getSerializedName() + "_" + face.getSerializedName());
-
+                        blockTexturePath + "/" + facing.getSerializedName() + "_" + connectedState.getSerializedName()
+                                + "_" + face.getSerializedName());
 
                 PartialModel move = AllPartialModels.TRAIN_STEP_MOVE.get(resourceLocation);
                 PartialModel flap = AllPartialModels.TRAIN_STEP_FLAP.get(resourceLocation);
                 PartialModel block = AllPartialModels.TRAIN_STEP.get(resourceLocation);
-
-
 
                 PartialModel slide = AllPartialModels.TRAIN_STEP_SLIDE.get(resourceLocation);
                 PartialModel pivot = AllPartialModels.TRAIN_STEP_PIVOT.get(resourceLocation);
 
                 SuperByteBuffer partial_block = CachedBuffers.partial(block, blockState);
                 CTSpriteShiftEntry spriteShift = null;
-                if (blockTexturePath.equals("train_step_andesite"))
+//                System.out.println("Block Texture Path: " + blockTexturePath);
+                if (blockTexturePath.equals("train_step_andesite")) {
                     spriteShift = AllSpriteShifts.ANDESITE_CASING;
-                else if (blockTexturePath.equals("train_step_brass"))
+                    // System.out.println("Using andesite casing texture");
+                } else if (blockTexturePath.equals("train_step_brass")) {
                     spriteShift = AllSpriteShifts.BRASS_CASING;
-                else if (blockTexturePath.equals("train_step_copper"))
+                    // System.out.println("Using brass casing texture");
+                } else if (blockTexturePath.equals("train_step_copper")) {
                     spriteShift = AllSpriteShifts.COPPER_CASING;
+                    // System.out.println("Using copper casing texture");
+                }
+
+                // ...existing code...
+                else if (blockTexturePath.equals("train_step_train")) {
+                    if (face == Direction.UP || face == Direction.DOWN) {
+                        spriteShift = com.tiestoettoet.create_train_parts.AllSpriteShifts.TRAIN_STEP_TRAIN;
+                    } else {
+                        spriteShift = com.tiestoettoet.create_train_parts.AllSpriteShifts.TRAIN_STEP_SIDE;
+                    }
+                } else {
+                    System.out.println("Unknown block texture path: " + blockTexturePath);
+                    return;
+                }
 
                 if (spriteShift == null) {
                     System.out.println("Sprite shift is null, using fallback texture.");
                     return;
                 }
-//                System.out.println("TextureIndex: " + textureIndex + ", face: " + face + ", facing" + facing + ", connectedState: " + connectedState);
-
-
+//                System.out.println("TextureIndex: " + textureIndex + ", face: " + face + ",facing" + facing
+//                        + ", connectedState: " + connectedState);
 
                 SuperByteBuffer partial_slide = CachedBuffers.partial(slide, blockState);
                 SuperByteBuffer partial_pivot = CachedBuffers.partial(pivot, blockState);
@@ -294,33 +298,33 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                         .light(light)
                         .renderInto(ms, vb);
 
-//                if (facing == Direction.EAST || facing == Direction.WEST)
-//                    if (face == Direction.UP) {
-//                        context = behaviour.buildContext(world, pos, blockState, facing,
-//                                dataType.getContextRequirement());
-//
-//                        textureIndex = dataType.getTextureIndex(context);
-//                        row = Math.floorDiv(textureIndex, 8);
-//                        column = textureIndex % 8;
-//                        u = (column) / 8f;
-//                        v = (row) / 8f;
-//                    }
+                // if (facing == Direction.EAST || facing == Direction.WEST)
+                // if (face == Direction.UP) {
+                // context = behaviour.buildContext(world, pos, blockState, facing,
+                // dataType.getContextRequirement());
+                //
+                // textureIndex = dataType.getTextureIndex(context);
+                // row = Math.floorDiv(textureIndex, 8);
+                // column = textureIndex % 8;
+                // u = (column) / 8f;
+                // v = (row) / 8f;
+                // }
                 partial_slide.translate(moveOffset.x, moveOffset.y, moveOffset.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         .light(light)
                         .renderInto(ms, vb);
-//                if (facing == Direction.EAST || facing == Direction.WEST)
-//                    if (face.getOpposite() == facing) {
-//                        context = behaviour.buildContext(world, pos, blockState, facing,
-//                                dataType.getContextRequirement());
-//
-//                        textureIndex = dataType.getTextureIndex(context);
-//                        row = Math.floorDiv(textureIndex, 8);
-//                        column = textureIndex % 8;
-//                        u = (column) / 8f;
-//                        v = (row) / 8f;
-//                    }
+                // if (facing == Direction.EAST || facing == Direction.WEST)
+                // if (face.getOpposite() == facing) {
+                // context = behaviour.buildContext(world, pos, blockState, facing,
+                // dataType.getContextRequirement());
+                //
+                // textureIndex = dataType.getTextureIndex(context);
+                // row = Math.floorDiv(textureIndex, 8);
+                // column = textureIndex % 8;
+                // u = (column) / 8f;
+                // v = (row) / 8f;
+                // }
                 partial_pivot.translate(moveOffsetP.x, 15.5 / 16f, moveOffsetP.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
