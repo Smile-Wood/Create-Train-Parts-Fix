@@ -2,5 +2,6 @@
   "block.create_train_parts.train_step_andesite": "Andesite Steps",
   "block.create_train_parts.train_step_brass": "Brass Steps",
   "block.create_train_parts.train_step_copper": "Copper Steps",
-  "block.create_train_parts.train_step_train": "Train Steps"
+  "block.create_train_parts.train_step_train": "Train Steps",
+  "block.create_train_parts.train_slide_andesite": "Andesite Slide"
 }

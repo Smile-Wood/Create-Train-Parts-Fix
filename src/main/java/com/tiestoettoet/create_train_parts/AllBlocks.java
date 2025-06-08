@@ -2,6 +2,7 @@ package com.tiestoettoet.create_train_parts;
 
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideBlock;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock;
 import com.tiestoettoet.create_train_parts.content.foundation.data.BuilderTransformers;
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -38,6 +39,11 @@ public class AllBlocks {
 //                    () -> AllSpriteShifts.TRAIN_STEP_SIDE,
                     () -> com.simibubi.create.AllSpriteShifts.RAILWAY_CASING))
             .register();
+
+    public static final BlockEntry<TrainSlideBlock> TRAIN_SLIDE_ANDESITE = REGISTRATE.block("train_slide_andesite", TrainSlideBlock::new)
+            .properties(p -> p.mapColor(MapColor.PODZOL))
+            .transform(BuilderTransformers.trainSlide("andesite", () -> AllSpriteShifts.TRAIN_STEP_ANDESITE))
+            .register();    
 //
 //    public static final BlockEntry<TrainStepBlock> TRAIN_STEP_BRASS = REGISTRATE.block("train_step_brass", TrainStepBlock::new)
 //            .transform(BuilderTransformers.trainStep("brass", () -> AllSpriteShifts.TRAIN_STEP_BRASS))

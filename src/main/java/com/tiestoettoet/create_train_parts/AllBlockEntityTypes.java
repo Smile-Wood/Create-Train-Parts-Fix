@@ -1,6 +1,8 @@
 package com.tiestoettoet.create_train_parts;
 
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideBlockEntity;
+import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideRenderer;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlockEntity;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepRenderer;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
@@ -14,6 +16,12 @@ public class AllBlockEntityTypes {
                     .validBlocks(AllBlocks.TRAIN_STEP_ANDESITE, AllBlocks.TRAIN_STEP_BRASS, AllBlocks.TRAIN_STEP_COPPER,
                                  AllBlocks.TRAIN_STEP_TRAIN)
                     .register();
+
+    public static final BlockEntityEntry<TrainSlideBlockEntity> TRAIN_SLIDE =
+        REGISTRATE.blockEntity("train_slide", TrainSlideBlockEntity::new)
+            .renderer(() -> TrainSlideRenderer::new)
+            .validBlocks(AllBlocks.TRAIN_SLIDE_ANDESITE)
+            .register();
 
     public static void register() {
 

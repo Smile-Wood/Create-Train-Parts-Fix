@@ -7,8 +7,12 @@ import com.simibubi.create.foundation.block.connected.HorizontalCTBehaviour;
 import com.simibubi.create.foundation.data.AssetLookup;
 import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 
+import com.tiestoettoet.create_train_parts.content.contraptions.behaviour.SlideMovingInteraction;
 import com.tiestoettoet.create_train_parts.content.contraptions.behaviour.StepMovingInteraction;
 import com.tiestoettoet.create_train_parts.content.decoration.encasing.EncasedCTBehaviour;
+import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideBlock;
+import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideGenerator;
+import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideMovementBehaviour;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepGenerator;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepMovementBehaviour;
@@ -50,5 +54,28 @@ public class BuilderTransformers {
                 .model(AssetLookup.customBlockItemModel("train_step_" + type, "steps"))
                 .build();
     }
+
+    public static <B extends TrainSlideBlock, P>NonNullUnaryOperator<BlockBuilder<B, P>> trainSlide(String type, Supplier<CTSpriteShiftEntry> ct) {
+        return trainSlide(type, ct, null);
+    }
+
+    public static <B extends TrainSlideBlock, P>NonNullUnaryOperator<BlockBuilder<B, P>> trainSlide(String type, Supplier<CTSpriteShiftEntry> ct, @Nullable Supplier<CTSpriteShiftEntry> ct2) {
+        return b -> b.initialProperties(() -> Blocks.IRON_DOOR)
+                .properties(p -> p.requiresCorrectToolForDrops()
+                        .strength(3.0F, 6.0F))
+                .blockstate(new TrainSlideGenerator(type)::generate)
+                .addLayer(() -> RenderType::cutoutMipped)
+                .transform(pickaxeOnly())
+                .onRegister(connectedTextures(() -> ct2 != null ? new HorizontalCTBehaviour(ct.get(), ct2.get()) : new EncasedCTBehaviour(ct.get())))
+                .onRegister(casingConnectivity((block, cc) -> cc.makeCasing(block, ct.get())))
+                .onRegister(interactionBehaviour(new SlideMovingInteraction()))
+                .onRegister(movementBehaviour(new TrainSlideMovementBehaviour()))
+                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
+                .item()
+                .tag(AllTags.AllItemTags.CONTRAPTION_CONTROLLED.tag)
+                .model(AssetLookup.customBlockItemModel("train_slide_" + type, "slide"))
+                .build();
+    }
+
 
 }
