@@ -3,5 +3,8 @@
   "block.create_train_parts.train_step_brass": "Brass Steps",
   "block.create_train_parts.train_step_copper": "Copper Steps",
   "block.create_train_parts.train_step_train": "Train Steps",
-  "block.create_train_parts.train_slide_andesite": "Andesite Slide"
+  "block.create_train_parts.train_slide_andesite": "Andesite Slide",
+  "block.create_train_parts.train_slide_brass": "Brass Slide",
+  "block.create_train_parts.train_slide_copper": "Copper Slide",
+  "block.create_train_parts.train_slide_train": "Train Slide"
 }

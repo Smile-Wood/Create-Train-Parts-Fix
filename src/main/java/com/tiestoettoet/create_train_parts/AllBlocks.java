@@ -36,14 +36,24 @@ public class AllBlocks {
             .properties(p -> p.mapColor(MapColor.PODZOL)
                     .sound(SoundType.NETHERITE_BLOCK))
             .transform(BuilderTransformers.trainStep("train",
-//                    () -> AllSpriteShifts.TRAIN_STEP_SIDE,
+                    () -> com.simibubi.create.AllSpriteShifts.RAILWAY_CASING_SIDE,
                     () -> com.simibubi.create.AllSpriteShifts.RAILWAY_CASING))
             .register();
 
     public static final BlockEntry<TrainSlideBlock> TRAIN_SLIDE_ANDESITE = REGISTRATE.block("train_slide_andesite", TrainSlideBlock::new)
             .properties(p -> p.mapColor(MapColor.PODZOL))
             .transform(BuilderTransformers.trainSlide("andesite", () -> AllSpriteShifts.TRAIN_STEP_ANDESITE))
-            .register();    
+            .register();
+
+    public static final BlockEntry<TrainSlideBlock> TRAIN_SLIDE_BRASS = REGISTRATE.block("train_slide_brass", TrainSlideBlock::new)
+            .properties(p -> p.mapColor(MapColor.PODZOL))
+            .transform(BuilderTransformers.trainSlide("brass", () -> AllSpriteShifts.TRAIN_STEP_BRASS))
+            .register();
+
+    public static final BlockEntry<TrainSlideBlock> TRAIN_SLIDE_COPPER = REGISTRATE.block("train_slide_copper", TrainSlideBlock::new)
+            .properties(p -> p.mapColor(MapColor.PODZOL))
+            .transform(BuilderTransformers.trainSlide("copper", () -> AllSpriteShifts.TRAIN_STEP_COPPER))
+            .register();
 //
 //    public static final BlockEntry<TrainStepBlock> TRAIN_STEP_BRASS = REGISTRATE.block("train_step_brass", TrainStepBlock::new)
 //            .transform(BuilderTransformers.trainStep("brass", () -> AllSpriteShifts.TRAIN_STEP_BRASS))

@@ -40,6 +40,7 @@ public class TrainStepBlockEntity extends SmartBlockEntity {
         super.tick();
         boolean open = isOpen(getBlockState());
         boolean wasSettled = animation.settled();
+//        System.out.println("TrainStepBlockEn/**/tity ticking: " + worldPosition + ", open: " + open + ", wasSettled: " + wasSettled);
         animation.chase(open ? 1 : 0, .15f, LerpedFloat.Chaser.LINEAR);
         animation.tickChaser();
 

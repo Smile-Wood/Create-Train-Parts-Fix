@@ -71,6 +71,8 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
     protected static final VoxelShape EAST_OPEN_BOTH;
     protected static final VoxelShape CLOSED;
 
+
+
     private final BlockSetType type = BlockSetType.OAK;
 
     public static final EnumProperty<TrainSlideType> TYPE = EnumProperty.create("type", TrainSlideType.class);
@@ -86,6 +88,10 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        TrainSlideBlockEntity trainSlideBlockEntity = (TrainSlideBlockEntity) level.getBlockEntity(pos);
+//        if (trainSlideBlockEntity != null) {
+//            float value = trainSlideBlockEntity.animation.getValue(partialTicks);
+//        }
         if (!(Boolean) state.getValue(OPEN)) {
             return CLOSED;
         } else {
@@ -191,16 +197,17 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
     private TrainSlideType determineType(ItemStack item) {
         // Example logic to determine type based on the item
 //        System.out.println("Determining TrainSlideType for item: " + item.getItem());
-//        System.out.println("Brass Item: " + AllBlocks.TRAIN_STEP_BRASS.asItem());
-        if (item.getItem() == AllBlocks.TRAIN_STEP_ANDESITE.asItem()) {
+//        System.out.println("Brass Item: " + AllBlocks.TRAIN_SLIDE_BRASS.asItem());
+        if (item.getItem() == AllBlocks.TRAIN_SLIDE_ANDESITE.asItem()) {
             return TrainSlideType.ANDESITE;
-        } else if (item.getItem() == AllBlocks.TRAIN_STEP_BRASS.asItem()) {
+        } else if (item.getItem() == AllBlocks.TRAIN_SLIDE_BRASS.asItem()) {
             return TrainSlideType.BRASS;
-        } else if (item.getItem() == AllBlocks.TRAIN_STEP_COPPER.asItem()) {
+        } else if (item.getItem() == AllBlocks.TRAIN_SLIDE_COPPER.asItem()) {
             return TrainSlideType.COPPER;
-        } else if (item.getItem() == AllBlocks.TRAIN_STEP_TRAIN.asItem()) {
-            return TrainSlideType.TRAIN;
         }
+//        else if (item.getItem() == AllBlocks.TRAIN_SLIDE_TRAIN.asItem()) {
+//            return TrainSlideType.TRAIN;
+//        }
         // else if (item.is(AllBlocks.TRAIN_STEP_TRAIN.asItem())) {
         // return TrainSlideType.TRAIN;
         // }
@@ -605,8 +612,8 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
 
         NORTH_OPEN_RIGHT = Stream.of(
                 Stream.of(
-                        Block.box(0, 0, 0, 1, 16, 16),
-//                        Block.box(15, 0, 0, 16, 16, 16),
+//                        Block.box(0, 0, 0, 1, 16, 16),
+                        Block.box(15, 0, 0, 16, 16, 16),
                         Block.box(0, 0, 15, 15, 16, 16),
                         Block.box(0, 15, 0, 15, 16, 15),
                         Block.box(0, 0, 14, 15, 1, 15)
@@ -618,8 +625,8 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
 
         NORTH_OPEN_LEFT = Stream.of(
                 Stream.of(
-//                        Block.box(0, 0, 0, 1, 16, 16),
-                        Block.box(15, 0, 0, 16, 16, 16),
+                        Block.box(0, 0, 0, 1, 16, 16),
+//                        Block.box(15, 0, 0, 16, 16, 16),
                         Block.box(1, 0, 15, 16, 16, 16),
                         Block.box(1, 15, 0, 16, 16, 15),
                         Block.box(1, 0, 14, 16, 1, 15)
@@ -650,9 +657,9 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
                         Block.box(1, 15, 1, 16, 16, 16),
                         Block.box(1, 0, 1, 2, 1, 16)
                 ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get(),
-                Block.box(15, 10, 1, 20, 15, 16),
-                Block.box(15, 5, 1, 25, 10, 16),
-                Block.box(15, 0, 1, 29, 5, 16)
+                Block.box(15, 10, 1, 20, 15, 15),
+                Block.box(15, 5, 1, 25, 10, 15),
+                Block.box(15, 0, 1, 29, 5, 15)
         ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
         EAST_OPEN_RIGHT = Stream.of(
@@ -761,8 +768,8 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
 
         WEST_OPEN_RIGHT = Stream.of(
                 Stream.of(
-                        Block.box(0, 0, 15, 16, 16, 16),
-//                        Block.box(0, 0, 0, 16, 16, 1),
+//                        Block.box(0, 0, 15, 16, 16, 16),
+                        Block.box(0, 0, 0, 16, 16, 1),
                         Block.box(15, 0, 1, 16, 16, 16),
                         Block.box(0, 15, 1, 15, 16, 16),
                         Block.box(14, 0, 1, 15, 1, 16)
@@ -774,8 +781,8 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
 
         WEST_OPEN_LEFT = Stream.of(
                 Stream.of(
-//                        Block.box(0, 0, 15, 16, 16, 16),
-                        Block.box(0, 0, 0, 16, 16, 1),
+                        Block.box(0, 0, 15, 16, 16, 16),
+//                        Block.box(0, 0, 0, 16, 16, 1),
                         Block.box(15, 0, 0, 16, 16, 15),
                         Block.box(0, 15, 0, 15, 16, 15),
                         Block.box(14, 0, 0, 15, 1, 15)

@@ -4,7 +4,41 @@
         "0": "create:block/brass_casing",
         "particle": "create:block/brass_casing"
     },
-    "elements": [],
+    "elements": [
+        {
+            "from": [
+                0,
+                0,
+                0
+            ],
+            "to": [
+                16,
+                1,
+                5
+            ],
+            "rotation": {
+                "angle": 0,
+                "axis": "y",
+                "origin": [
+                    8,
+                    8,
+                    -8
+                ]
+            },
+            "faces": {
+                "down": {
+                    "uv": [
+                        0,
+                        0,
+                        16,
+                        5
+                    ],
+                    "rotation": 180,
+                    "texture": "#0"
+                }
+            }
+        }
+    ],
     "groups": [
         {
             "name": "stairs",

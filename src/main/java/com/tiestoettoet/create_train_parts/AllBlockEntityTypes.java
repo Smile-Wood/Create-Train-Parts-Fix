@@ -20,7 +20,7 @@ public class AllBlockEntityTypes {
     public static final BlockEntityEntry<TrainSlideBlockEntity> TRAIN_SLIDE =
         REGISTRATE.blockEntity("train_slide", TrainSlideBlockEntity::new)
             .renderer(() -> TrainSlideRenderer::new)
-            .validBlocks(AllBlocks.TRAIN_SLIDE_ANDESITE)
+            .validBlocks(AllBlocks.TRAIN_SLIDE_ANDESITE, AllBlocks.TRAIN_SLIDE_BRASS, AllBlocks.TRAIN_SLIDE_COPPER)
             .register();
 
     public static void register() {

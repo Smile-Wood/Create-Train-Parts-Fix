@@ -36,6 +36,7 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
     protected void renderSafe(TrainSlideBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
             int light, int overlay) {
         BlockState blockState = be.getBlockState();
+//        System.out.println("Partial Ticks: " + partialTicks);
         if (!be.shouldRenderSpecial(blockState))
             return;
 
@@ -170,8 +171,11 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
             
 
             for (Direction face : Iterate.directions) {
+
                 ConnectedTextureBehaviour.CTContext context = behaviour.buildContext(world, pos, blockState, face,
                         dataType.getContextRequirement());
+
+
 
                 int textureIndex = dataType.getTextureIndex(context);
                 if (facing == Direction.EAST && face != Direction.UP && face != Direction.DOWN)
@@ -181,11 +185,12 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                 if (facing == Direction.WEST && face != Direction.UP && face != Direction.DOWN)
                     face = face.getClockWise();
 
+
                 ResourceLocation resourceLocation = CreateTrainParts.asResource(
                         blockTexturePath + "/" + facing.getSerializedName() + "_" + connectedState.getSerializedName()
                                 + "_" + face.getSerializedName());
 
-                System.out.println("Resource Location: " + resourceLocation);
+//                System.out.println("Resource Location: " + resourceLocation);
 
                 PartialModel top = AllPartialModels.TRAIN_SLIDE_TOP.get(resourceLocation);
                 PartialModel centre = AllPartialModels.TRAIN_SLIDE_CENTRE.get(resourceLocation);

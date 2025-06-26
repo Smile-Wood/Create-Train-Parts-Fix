@@ -82,7 +82,7 @@
                         15
                     ],
                     "rotation": 90,
-                    "texture": "#1"
+                    "texture": "#particle"
                 }
             }
         }

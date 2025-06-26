@@ -65,6 +65,7 @@ public class TrainStepMovementBehaviour implements MovementBehaviour {
             return;
         boolean wasSettled = sdbe.animation.settled();
         sdbe.animation.chase(open ? 1 : 0, .15f, Chaser.LINEAR);
+//        System.out.println("TrainStepMovementBehaviour.tick: " + context.localPos + " - " + sdbe.animation.getValue() + " - " + open + " - " + wasSettled);
         sdbe.animation.tickChaser();
 
         if (!wasSettled && sdbe.animation.settled() && !open)
@@ -114,13 +115,13 @@ public class TrainStepMovementBehaviour implements MovementBehaviour {
         contraption.entity.setBlock(pos, new StructureTemplate.StructureBlockInfo(info.pos(), newState, info.nbt()));
 
 
-        info = contraption.getBlocks()
-                .get(pos.relative(info.state().getValue(FACING)));
-        if (info != null && info.state().hasProperty(TrainStepBlock.OPEN)) {
-            newState = info.state().cycle(TrainStepBlock.OPEN);
-            contraption.entity.setBlock(pos.relative(info.state().getValue(FACING)), new StructureTemplate.StructureBlockInfo(info.pos(), newState, info.nbt()));
-            contraption.invalidateColliders();
-        }
+//        info = contraption.getBlocks()
+//                .get(pos.relative(info.state().getValue(FACING)));
+//        if (info != null && info.state().hasProperty(TrainStepBlock.OPEN)) {
+//            newState = info.state().cycle(TrainStepBlock.OPEN);
+//            contraption.entity.setBlock(pos.relative(info.state().getValue(FACING)), new StructureTemplate.StructureBlockInfo(info.pos(), newState, info.nbt()));
+//            contraption.invalidateColliders();
+//        }
     }
 
 

@@ -297,7 +297,7 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         // state = state.setValue(VISIBLE, true);
         level.setBlock(pos, state, flags);
         level.gameEvent(player, state.getValue(OPEN) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
-
+        level.sendBlockUpdated(pos, state, state, 3);
     }
 
     public void setOpen(@Nullable Entity entity, Level level, BlockState state, BlockPos pos, boolean open) {

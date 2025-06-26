@@ -77,6 +77,7 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
         };
 
         float value = be.animation.getValue(partialTicks);
+//        System.out.println("TrainStepRenderer: Value: " + value);
         float exponentialValue = (float) value * value;
         float relativeValue = blockState.getValue(TrainStepBlock.OPEN) ? exponentialValue : 1 - exponentialValue;
         float relativeAnimationValue = relativeValue;

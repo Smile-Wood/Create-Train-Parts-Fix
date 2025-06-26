@@ -48,6 +48,8 @@ public class AllPartialModels {
         putTrainStep("train_step_copper");
         putTrainStep("train_step_train");
         putTrainSlide("train_slide_andesite");
+        putTrainSlide("train_slide_brass");
+        putTrainSlide("train_slide_copper");
     }
 
     private static void putTrainStep(String path) {
