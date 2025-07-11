@@ -1,13 +1,18 @@
 package com.tiestoettoet.create_train_parts.content.decoration.trainStep;
 
-import com.simibubi.create.content.decoration.slidingDoor.SlidingDoorBlock;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIconOptions;
+import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
+import com.tiestoettoet.create_train_parts.content.foundation.gui.AllIcons;
+import com.tiestoettoet.create_train_parts.content.foundation.utility.CreateTrainPartsLang;
 import net.createmod.catnip.animation.LerpedFloat;
+import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,11 +28,31 @@ public class TrainStepBlockEntity extends SmartBlockEntity {
     boolean deferUpdate;
     Map<String, BlockState> neighborStates = new HashMap<>();
     TrainStepType trainStepType;
+    protected ScrollOptionBehaviour<SlideMode> slideMode;
 
     public TrainStepBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         animation = LerpedFloat.linear()
                 .startWithValue(isOpen(getBlockState()) ? 1 : 0);
+    }
+
+    @Override
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+        behaviours.add(slideMode = new ScrollOptionBehaviour<>(SlideMode.class,
+                CreateTrainPartsLang.translateDirect("train_step.mode"), this, new TrainStepModeSlot()));
+
+        slideMode.onlyActiveWhen(this::isVisible);
+        slideMode.requiresWrench();
+
+
+    }
+
+    public SlideMode getMode() {
+        return slideMode.get();
+    }
+
+    public boolean isVisible() {
+        return getBlockState().getValue(TrainStepBlock.VISIBLE);
     }
 
     @Override
@@ -103,9 +128,36 @@ public class TrainStepBlockEntity extends SmartBlockEntity {
         level.playSound(null, worldPosition, SoundEvents.IRON_DOOR_CLOSE, SoundSource.BLOCKS, .5f, 1);
     }
 
-    @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+    public enum SlideMode implements INamedIconOptions, StringRepresentable {
+        SLIDE(AllIcons.I_OPEN_SLIDE),
+        NO_SLIDE(AllIcons.I_CLOSE_SLIDE)
+
+        ;
+
+        private final String translationKey;
+        private final AllIcons icon;
+
+        SlideMode(AllIcons icon) {
+            this.icon = icon;
+            this.translationKey = "step.mode." + Lang.asId(name());
+        }
+
+        @Override
+        public AllIcons getIcon() {
+            return icon;
+        }
+
+        @Override
+        public String getTranslationKey() {
+            return translationKey;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase();
+        }
     }
+
 
     public static boolean isOpen(BlockState state) {
         return state.getOptionalValue(TrainStepBlock.OPEN)

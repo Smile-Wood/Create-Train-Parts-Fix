@@ -61,7 +61,7 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
         CTType dataType = behaviour.getDataType(world, pos, blockState, facing);
 
         if (dataType == null) {
-            System.out.println("Data type is null");
+//            System.out.println("Data type is null");
             return;
         }
         // Direction face = Direction.UP;
@@ -260,12 +260,12 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                         spriteShift = com.tiestoettoet.create_train_parts.AllSpriteShifts.TRAIN_STEP_SIDE;
                     }
                 } else {
-                    System.out.println("Unknown block texture path: " + blockTexturePath);
+//                    System.out.println("Unknown block texture path: " + blockTexturePath);
                     return;
                 }
 
                 if (spriteShift == null) {
-                    System.out.println("Sprite shift is null, using fallback texture.");
+//                    System.out.println("Sprite shift is null, using fallback texture.");
                     return;
                 }
 //                System.out.println("TextureIndex: " + textureIndex + ", face: " + face + ",facing" + facing
@@ -310,6 +310,9 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                 // u = (column) / 8f;
                 // v = (row) / 8f;
                 // }
+                TrainStepBlockEntity.SlideMode mode = be.getMode();
+                if (mode == TrainStepBlockEntity.SlideMode.NO_SLIDE)
+                    moveOffset = Vec3.ZERO;
                 partial_slide.translate(moveOffset.x, moveOffset.y, moveOffset.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)

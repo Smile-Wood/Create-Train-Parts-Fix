@@ -11,6 +11,7 @@ import com.simibubi.create.content.kinetics.steamEngine.PoweredShaftBlockEntity;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.simibubi.create.content.redstone.contact.RedstoneContactBlock;
 import com.simibubi.create.foundation.utility.BlockHelper;
+import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.SlidingWindowBlock;
 import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideBlock;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock;
 import net.minecraft.core.BlockPos;
@@ -70,6 +71,8 @@ public abstract class ContraptionMixin {
             blockstate = blockstate.setValue(TrainStepBlock.VISIBLE, false);
         if (blockstate.hasProperty(TrainSlideBlock.VISIBLE))
             blockstate = blockstate.setValue(TrainSlideBlock.VISIBLE, false);
+        if (blockstate.hasProperty(SlidingWindowBlock.VISIBLE))
+            blockstate = blockstate.setValue(SlidingWindowBlock.VISIBLE, false);
         CompoundTag compoundnbt = getBlockEntityNBT(world, pos);
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof PoweredShaftBlockEntity)

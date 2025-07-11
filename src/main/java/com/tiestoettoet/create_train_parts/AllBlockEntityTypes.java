@@ -1,6 +1,8 @@
 package com.tiestoettoet.create_train_parts;
 
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.SlidingWindowBlockEntity;
+import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.SlidingWindowRenderer;
 import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideBlockEntity;
 import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideRenderer;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlockEntity;
@@ -20,8 +22,14 @@ public class AllBlockEntityTypes {
     public static final BlockEntityEntry<TrainSlideBlockEntity> TRAIN_SLIDE =
         REGISTRATE.blockEntity("train_slide", TrainSlideBlockEntity::new)
             .renderer(() -> TrainSlideRenderer::new)
-            .validBlocks(AllBlocks.TRAIN_SLIDE_ANDESITE, AllBlocks.TRAIN_SLIDE_BRASS, AllBlocks.TRAIN_SLIDE_COPPER)
+            .validBlocks(AllBlocks.TRAIN_SLIDE_ANDESITE, AllBlocks.TRAIN_SLIDE_BRASS, AllBlocks.TRAIN_SLIDE_COPPER, AllBlocks.TRAIN_SLIDE_TRAIN)
             .register();
+
+    public static final BlockEntityEntry<SlidingWindowBlockEntity> SLIDING_WINDOW =
+            REGISTRATE.blockEntity("sliding_window", SlidingWindowBlockEntity::new)
+                    .renderer(() -> SlidingWindowRenderer::new)
+                    .validBlocks(AllBlocks.GLASS_SLIDING_WINDOW, AllBlocks.ANDESITE_SLIDING_WINDOW, AllBlocks.BRASS_SLIDING_WINDOW, AllBlocks.COPPER_SLIDING_WINDOW, AllBlocks.TRAIN_SLIDING_WINDOW)
+                    .register();
 
     public static void register() {
 

@@ -1,8 +1,9 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "create:block/andesite_casing",
-		"particle": "create:block/andesite_casing"
+		"0": "create:block/railway_casing_side",
+		"1": "create:block/railway_casing",
+		"particle": "create:block/railway_casing_side"
 	},
 	"elements": [
 		{
@@ -14,8 +15,8 @@
 				"east": {"uv": [1, 11, 15, 16], "texture": "#0"},
 				"south": {"uv": [16, 11, 0, 16], "texture": "#0"},
 				"west": {"uv": [1, 11, 15, 16], "texture": "#0"},
-				"up": {"uv": [0, 2, 16, 16], "texture": "#0"},
-				"down": {"uv": [2, 0, 16, 16], "rotation": 90, "texture": "#0"}
+				"up": {"uv": [0, 14, 16, 0], "texture": "#0"},
+				"down": {"uv": [2, 0, 16, 16], "rotation": 90, "texture": "#1"}
 			}
 		}
 	],

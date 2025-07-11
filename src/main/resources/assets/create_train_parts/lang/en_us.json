@@ -6,5 +6,19 @@
   "block.create_train_parts.train_slide_andesite": "Andesite Slide",
   "block.create_train_parts.train_slide_brass": "Brass Slide",
   "block.create_train_parts.train_slide_copper": "Copper Slide",
-  "block.create_train_parts.train_slide_train": "Train Slide"
+  "block.create_train_parts.train_slide_train": "Train Slide",
+  "block.create_train_parts.glass_sliding_window": "Glass Window",
+  "block.create_train_parts.andesite_sliding_window": "Andesite Window",
+  "block.create_train_parts.brass_sliding_window": "Brass Window",
+  "block.create_train_parts.copper_sliding_window": "Copper Window",
+  "block.create_train_parts.train_sliding_window": "Train Window",
+  "create_train_parts.sliding_window.mode": "Sliding Window Mode",
+  "create.window.mode.up": "Move Up",
+  "create.window.mode.down": "Move Down",
+  "create.window.mode.left": "Move Left",
+  "create.window.mode.right": "Move Right",
+  "create_train_parts.train_step.mode": "Slide mode",
+  "create.step.mode.slide": "Extend Slide",
+  "create.step.mode.no_slide": "Don't Extend Slide",
+  "itemGroup.create_train_parts.base": "Create Train Parts"
 }

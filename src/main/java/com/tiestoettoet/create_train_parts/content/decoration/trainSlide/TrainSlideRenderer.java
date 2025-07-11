@@ -49,7 +49,7 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
         CTType dataType = behaviour.getDataType(world, pos, blockState, facing);
 
         if (dataType == null) {
-            System.out.println("Data type is null");
+//            System.out.println("Data type is null");
             return;
         }
         // Direction face = Direction.UP;
@@ -221,12 +221,12 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                         spriteShift = com.tiestoettoet.create_train_parts.AllSpriteShifts.TRAIN_STEP_SIDE;
                     }
                 } else {
-                    System.out.println("Unknown block texture path: " + blockTexturePath);
+//                    System.out.println("Unknown block texture path: " + blockTexturePath);
                     return;
                 }
 
                 if (spriteShift == null) {
-                    System.out.println("Sprite shift is null, using fallback texture.");
+//                    System.out.println("Sprite shift is null, using fallback texture.");
                     return;
                 }
 //                System.out.println("TextureIndex: " + textureIndex + ", face: " + face + ",facing" + facing

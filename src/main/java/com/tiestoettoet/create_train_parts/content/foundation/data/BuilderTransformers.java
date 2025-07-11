@@ -2,6 +2,7 @@ package com.tiestoettoet.create_train_parts.content.foundation.data;
 
 import com.simibubi.create.AllTags;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
+import com.simibubi.create.content.decoration.TrapdoorCTBehaviour;
 import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 //import com.simibubi.create.foundation.block.connected.HorizontalCTBehaviour;
 import com.simibubi.create.foundation.data.AssetLookup;
@@ -9,7 +10,12 @@ import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBeh
 
 import com.tiestoettoet.create_train_parts.content.contraptions.behaviour.SlideMovingInteraction;
 import com.tiestoettoet.create_train_parts.content.contraptions.behaviour.StepMovingInteraction;
+import com.tiestoettoet.create_train_parts.content.contraptions.behaviour.WindowMovingInteraction;
+import com.tiestoettoet.create_train_parts.content.decoration.SlidingWindowCTBehaviour;
 import com.tiestoettoet.create_train_parts.content.decoration.encasing.EncasedCTBehaviour;
+import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.SlidingWindowBlock;
+import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.SlidingWindowGenerator;
+import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.SlidingWindowMovementBehaviour;
 import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideBlock;
 import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideGenerator;
 import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideMovementBehaviour;
@@ -75,6 +81,24 @@ public class BuilderTransformers {
                 .item()
                 .tag(AllTags.AllItemTags.CONTRAPTION_CONTROLLED.tag)
                 .model(AssetLookup.customBlockItemModel("train_slide_" + type, "slide"))
+                .build();
+    }
+
+    public static <B extends SlidingWindowBlock, P>NonNullUnaryOperator<BlockBuilder<B, P>> slidingWindow(String type, Supplier<CTSpriteShiftEntry> ct) {
+        return b -> b.initialProperties(() -> Blocks.IRON_DOOR)
+                .properties(p -> p.requiresCorrectToolForDrops()
+                        .strength(3.0F, 6.0F))
+                .blockstate(new SlidingWindowGenerator(type)::generate)
+
+                .transform(pickaxeOnly())
+                .onRegister(connectedTextures(() -> new SlidingWindowCTBehaviour(ct.get())))
+                .onRegister(interactionBehaviour(new WindowMovingInteraction()))
+                .onRegister(movementBehaviour(new SlidingWindowMovementBehaviour()))
+                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
+                .addLayer(() -> RenderType::cutoutMipped)
+                .item()
+                .tag(AllTags.AllItemTags.CONTRAPTION_CONTROLLED.tag)
+                .model(AssetLookup.customBlockItemModel("sliding_windows", type))
                 .build();
     }
 

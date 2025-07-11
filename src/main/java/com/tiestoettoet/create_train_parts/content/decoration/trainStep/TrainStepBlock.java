@@ -1,6 +1,8 @@
 package com.tiestoettoet.create_train_parts.content.decoration.trainStep;
 
 import com.mojang.serialization.MapCodec;
+import com.simibubi.create.content.equipment.wrench.IWrenchable;
+import com.simibubi.create.foundation.block.IHaveBigOutline;
 import com.tiestoettoet.create_train_parts.AllBlockEntityTypes;
 import com.tiestoettoet.create_train_parts.AllBlocks;
 
@@ -42,7 +44,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import com.simibubi.create.foundation.block.IBE;
 
-public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<TrainStepBlockEntity> {
+public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<TrainStepBlockEntity>, IHaveBigOutline, IWrenchable {
 
     public static final BooleanProperty OPEN = BooleanProperty.create("open");
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
@@ -54,21 +56,37 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
     // BooleanProperty.create("visible");
 
     protected static final VoxelShape NORTH_OPEN_NONE;
+    protected static final VoxelShape NORTH_OPEN_NONE_NOSLIDE;
     protected static final VoxelShape NORTH_OPEN_RIGHT;
+    protected static final VoxelShape NORTH_OPEN_RIGHT_NOSLIDE;
     protected static final VoxelShape NORTH_OPEN_LEFT;
+    protected static final VoxelShape NORTH_OPEN_LEFT_NOSLIDE;
     protected static final VoxelShape NORTH_OPEN_BOTH;
+    protected static final VoxelShape NORTH_OPEN_BOTH_NOSLIDE;
     protected static final VoxelShape SOUTH_OPEN_NONE;
+    protected static final VoxelShape SOUTH_OPEN_NONE_NOSLIDE;
     protected static final VoxelShape SOUTH_OPEN_RIGHT;
+    protected static final VoxelShape SOUTH_OPEN_RIGHT_NOSLIDE;
     protected static final VoxelShape SOUTH_OPEN_LEFT;
+    protected static final VoxelShape SOUTH_OPEN_LEFT_NOSLIDE;
     protected static final VoxelShape SOUTH_OPEN_BOTH;
+    protected static final VoxelShape SOUTH_OPEN_BOTH_NOSLIDE;
     protected static final VoxelShape WEST_OPEN_NONE;
+    protected static final VoxelShape WEST_OPEN_NONE_NOSLIDE;
     protected static final VoxelShape WEST_OPEN_RIGHT;
+    protected static final VoxelShape WEST_OPEN_RIGHT_NOSLIDE;
     protected static final VoxelShape WEST_OPEN_LEFT;
+    protected static final VoxelShape WEST_OPEN_LEFT_NOSLIDE;
     protected static final VoxelShape WEST_OPEN_BOTH;
+    protected static final VoxelShape WEST_OPEN_BOTH_NOSLIDE;
     protected static final VoxelShape EAST_OPEN_NONE;
+    protected static final VoxelShape EAST_OPEN_NONE_NOSLIDE;
     protected static final VoxelShape EAST_OPEN_RIGHT;
+    protected static final VoxelShape EAST_OPEN_RIGHT_NOSLIDE;
     protected static final VoxelShape EAST_OPEN_LEFT;
+    protected static final VoxelShape EAST_OPEN_LEFT_NOSLIDE;
     protected static final VoxelShape EAST_OPEN_BOTH;
+    protected static final VoxelShape EAST_OPEN_BOTH_NOSLIDE;
     protected static final VoxelShape CLOSED;
 
     private final BlockSetType type = BlockSetType.OAK;
@@ -86,35 +104,83 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        TrainStepBlockEntity.SlideMode mode = blockEntity instanceof TrainStepBlockEntity ? ((TrainStepBlockEntity) blockEntity).getMode() : TrainStepBlockEntity.SlideMode.SLIDE;
         if (!(Boolean) state.getValue(OPEN)) {
             return CLOSED;
         } else {
-            return switch (state.getValue(CONNECTED)) {
-                case NONE -> switch (state.getValue(FACING)) {
-                    default -> NORTH_OPEN_NONE;
-                    case SOUTH -> SOUTH_OPEN_NONE;
-                    case WEST -> WEST_OPEN_NONE;
-                    case EAST -> EAST_OPEN_NONE;
-                };
-                case LEFT -> switch (state.getValue(FACING)) {
-                    default -> NORTH_OPEN_LEFT;
-                    case SOUTH -> SOUTH_OPEN_LEFT;
-                    case WEST -> WEST_OPEN_LEFT;
-                    case EAST -> EAST_OPEN_LEFT;
-                };
-                case RIGHT -> switch (state.getValue(FACING)) {
-                    default -> NORTH_OPEN_RIGHT;
-                    case SOUTH -> SOUTH_OPEN_RIGHT;
-                    case WEST -> WEST_OPEN_RIGHT;
-                    case EAST -> EAST_OPEN_RIGHT;
-                };
-                case BOTH -> switch (state.getValue(FACING)) {
-                    default -> NORTH_OPEN_BOTH;
-                    case SOUTH -> SOUTH_OPEN_BOTH;
-                    case WEST -> WEST_OPEN_BOTH;
-                    case EAST -> EAST_OPEN_BOTH;
-                };
-            };
+            if (mode == TrainStepBlockEntity.SlideMode.SLIDE) {
+                switch (state.getValue(CONNECTED)) {
+                    case NONE -> {
+                        return switch (state.getValue(FACING)) {
+                            default -> NORTH_OPEN_NONE;
+                            case SOUTH -> SOUTH_OPEN_NONE;
+                            case WEST -> WEST_OPEN_NONE;
+                            case EAST -> EAST_OPEN_NONE;
+                        };
+                    }
+                    case LEFT -> {
+                        return switch (state.getValue(FACING)) {
+                            default -> NORTH_OPEN_LEFT;
+                            case SOUTH -> SOUTH_OPEN_LEFT;
+                            case WEST -> WEST_OPEN_LEFT;
+                            case EAST -> EAST_OPEN_LEFT;
+                        };
+                    }
+                    case RIGHT -> {
+                        return switch (state.getValue(FACING)) {
+                            default -> NORTH_OPEN_RIGHT;
+                            case SOUTH -> SOUTH_OPEN_RIGHT;
+                            case WEST -> WEST_OPEN_RIGHT;
+                            case EAST -> EAST_OPEN_RIGHT;
+                        };
+                    }
+                    case BOTH -> {
+                        return switch (state.getValue(FACING)) {
+                            default -> NORTH_OPEN_BOTH;
+                            case SOUTH -> SOUTH_OPEN_BOTH;
+                            case WEST -> WEST_OPEN_BOTH;
+                            case EAST -> EAST_OPEN_BOTH;
+                        };
+                    }
+                }
+            } else {
+                switch (state.getValue(CONNECTED)) {
+                    case NONE -> {
+                        return switch (state.getValue(FACING)) {
+                            default -> NORTH_OPEN_NONE_NOSLIDE;
+                            case SOUTH -> SOUTH_OPEN_NONE_NOSLIDE;
+                            case WEST -> WEST_OPEN_NONE_NOSLIDE;
+                            case EAST -> EAST_OPEN_NONE_NOSLIDE;
+                        };
+                    }
+                    case LEFT -> {
+                        return switch (state.getValue(FACING)) {
+                            default -> NORTH_OPEN_LEFT_NOSLIDE;
+                            case SOUTH -> SOUTH_OPEN_LEFT_NOSLIDE;
+                            case WEST -> WEST_OPEN_LEFT_NOSLIDE;
+                            case EAST -> EAST_OPEN_LEFT_NOSLIDE;
+                        };
+                    }
+                    case RIGHT -> {
+                        return switch (state.getValue(FACING)) {
+                            default -> NORTH_OPEN_RIGHT_NOSLIDE;
+                            case SOUTH -> SOUTH_OPEN_RIGHT_NOSLIDE;
+                            case WEST -> WEST_OPEN_RIGHT_NOSLIDE;
+                            case EAST -> EAST_OPEN_RIGHT_NOSLIDE;
+                        };
+                    }
+                    case BOTH -> {
+                        return switch (state.getValue(FACING)) {
+                            default -> NORTH_OPEN_BOTH_NOSLIDE;
+                            case SOUTH -> SOUTH_OPEN_BOTH_NOSLIDE;
+                            case WEST -> WEST_OPEN_BOTH_NOSLIDE;
+                            case EAST -> EAST_OPEN_BOTH_NOSLIDE;
+                        };
+                    }
+                }
+            }
+            return CLOSED;
         }
     }
 
@@ -127,6 +193,11 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                 trainStepBlockEntity.setNeighborState(state);
             }
         }
+    }
+
+    @Override
+    public VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return getShape(state, level, pos, CollisionContext.empty());
     }
 
     @Override
@@ -346,7 +417,7 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
             @Nullable
             BlockState oldRightState = neighborStates.get("right");
             if ((oldLeftState != null && leftState.getBlock() != oldLeftState.getBlock()) || (oldRightState != null && rightState.getBlock() != oldRightState.getBlock())) {
-                System.out.println("Neighbor changed detected: Left State: " + leftState.getBlock() + ", Right State: " + rightState.getBlock() + ", Old Left State: " + oldLeftState.getBlock() + ", Old Right State: " + oldRightState.getBlock());
+//                System.out.println("Neighbor changed detected: Left State: " + leftState.getBlock() + ", Right State: " + rightState.getBlock() + ", Old Left State: " + oldLeftState.getBlock() + ", Old Right State: " + oldRightState.getBlock());
                 state = getState(state, pos, level, state.getValue(FACING), "neighborChanged");
                 state = state.setValue(POWERED, powered)
                         .setValue(OPEN, open)
@@ -604,6 +675,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                 Block.box(0, 0, 0, 1, 16, 16),
                 Block.box(15, 0, 0, 16, 16, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
+        NORTH_OPEN_NONE_NOSLIDE = Stream.of(
+                Shapes.join(
+                    NORTH_OPEN_NONE,
+                    Block.box(1, 0, -5, 15, 1, 0),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(1, 0, 0, 15, 1, 5)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
         NORTH_OPEN_RIGHT = Stream.of(
                 Stream.of(
                         Block.box(0, 11, 11, 15, 16, 16),
@@ -617,6 +697,16 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                         Block.box(0, 1, 15, 15, 11, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get(),
                 // Block.box(0, 0, 0, 1, 16, 16),
                 Block.box(15, 0, 0, 16, 16, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
+        NORTH_OPEN_RIGHT_NOSLIDE = Stream.of(
+                Shapes.join(
+                    NORTH_OPEN_RIGHT,
+                    Block.box(0, 0, -5, 15, 1, 0),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(0, 0, 0, 15, 1, 5)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
 
         NORTH_OPEN_LEFT = Stream.of(
                 Stream.of(
@@ -633,6 +723,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         // Block.box(15, 0, 0, 16, 16, 16)
         ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
+        NORTH_OPEN_LEFT_NOSLIDE = Stream.of(
+                Shapes.join(
+                    NORTH_OPEN_LEFT,
+                    Block.box(1, 0, -5, 16, 1, 0),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(1, 0, 0, 16, 1, 5)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
         NORTH_OPEN_BOTH = Stream.of(
                 Block.box(0, 11, 11, 16, 16, 16),
                 Stream.of(
@@ -644,6 +743,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                 Block.box(0, 1, 15, 16, 11, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
         // Block.box(0, 0, 0, 1, 16, 16),
         // Block.box(15, 0, 0, 16, 16, 16)
+
+        NORTH_OPEN_BOTH_NOSLIDE = Stream.of(
+                Shapes.join(
+                    NORTH_OPEN_BOTH,
+                    Block.box(0, 0, -5, 16, 1, 0),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(0, 0, 0, 16, 1, 5)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
         EAST_OPEN_NONE = Stream.of(
                 Stream.of(
@@ -659,6 +767,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                 Block.box(0, 0, 0, 16, 16, 1),
                 Block.box(0, 0, 15, 16, 16, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
+        EAST_OPEN_NONE_NOSLIDE = Stream.of(
+                Shapes.join(
+                    EAST_OPEN_NONE,
+                    Block.box(16, 0, 1, 21, 1, 15),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(11, 0, 1, 16, 1, 15)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
         EAST_OPEN_RIGHT = Stream.of(
                 Stream.of(
                         Block.box(0, 11, 0, 5, 16, 15),
@@ -672,6 +789,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                         Block.box(0, 1, 0, 1, 11, 15)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get(),
                 // Block.box(0, 0, 0, 16, 16, 1),
                 Block.box(0, 0, 15, 16, 16, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
+        EAST_OPEN_RIGHT_NOSLIDE = Stream.of(
+                Shapes.join(
+                    EAST_OPEN_RIGHT,
+                    Block.box(16, 0, 0, 21, 1, 15),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(11, 0, 0, 16, 1, 15)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
         EAST_OPEN_LEFT = Stream.of(
                 Stream.of(
@@ -688,6 +814,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         // Block.box(0, 0, 15, 16, 16, 16)
         ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
+        EAST_OPEN_LEFT_NOSLIDE = Stream.of(
+                Shapes.join(
+                    EAST_OPEN_LEFT,
+                    Block.box(16, 0, 1, 21, 1, 16),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(11, 0, 1, 16, 1, 16)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
         EAST_OPEN_BOTH = Stream.of(
                 Block.box(0, 11, 0, 5, 16, 16),
                 Stream.of(
@@ -699,6 +834,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                 Block.box(0, 1, 0, 1, 11, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
         // Block.box(0, 0, 0, 16, 16, 1),
         // Block.box(0, 0, 15, 16, 16, 16)
+
+        EAST_OPEN_BOTH_NOSLIDE = Stream.of(
+                Shapes.join(
+                    EAST_OPEN_BOTH,
+                    Block.box(16, 0, 0, 21, 1, 16),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(11, 0, 0, 16, 1, 16)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
         SOUTH_OPEN_NONE = Stream.of(
                 Stream.of(
@@ -714,6 +858,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                 Block.box(15, 0, 0, 16, 16, 16),
                 Block.box(0, 0, 0, 1, 16, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
+        SOUTH_OPEN_NONE_NOSLIDE = Stream.of(
+                Shapes.join(
+                    SOUTH_OPEN_NONE,
+                    Block.box(1, 0, 16, 15, 1, 21),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(1, 0, 11, 15, 1, 16)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
         SOUTH_OPEN_RIGHT = Stream.of(
                 Stream.of(
                         Block.box(1, 11, 0, 16, 16, 5),
@@ -727,6 +880,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                         Block.box(1, 1, 0, 16, 11, 1)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get(),
                 // Block.box(15, 0, 0, 16, 16, 16),
                 Block.box(0, 0, 0, 1, 16, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
+        SOUTH_OPEN_RIGHT_NOSLIDE = Stream.of(
+                Shapes.join(
+                    SOUTH_OPEN_RIGHT,
+                    Block.box(1, 0, 16, 16, 1, 21),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(1, 0, 11, 16, 1, 16)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
         SOUTH_OPEN_LEFT = Stream.of(
                 Stream.of(
@@ -743,6 +905,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         // Block.box(0, 0, 0, 1, 16, 16)
         ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
+        SOUTH_OPEN_LEFT_NOSLIDE = Stream.of(
+                Shapes.join(
+                    SOUTH_OPEN_LEFT,
+                    Block.box(0, 0, 16, 15, 1, 21),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(0, 0, 11, 15, 1, 16)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
         SOUTH_OPEN_BOTH = Stream.of(
                 Block.box(0, 11, 0, 16, 16, 5),
                 Stream.of(
@@ -755,6 +926,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         // Block.box(15, 0, 0, 16, 16, 16),
         // Block.box(0, 0, 0, 1, 16, 16)
         // ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
+        SOUTH_OPEN_BOTH_NOSLIDE = Stream.of(
+                Shapes.join(
+                    SOUTH_OPEN_BOTH,
+                    Block.box(0, 0, 16, 16, 1, 21),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(0, 0, 11, 16, 1, 16)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
         WEST_OPEN_NONE = Stream.of(
                 Stream.of(
@@ -770,6 +950,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                 Block.box(0, 0, 15, 16, 16, 16),
                 Block.box(0, 0, 0, 16, 16, 1)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
+        WEST_OPEN_NONE_NOSLIDE = Stream.of(
+                Shapes.join(
+                    WEST_OPEN_NONE,
+                    Block.box(-5, 0, 1, 0, 1, 15),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(0, 0, 1, 5, 1, 15)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
         WEST_OPEN_RIGHT = Stream.of(
                 Stream.of(
                         Block.box(11, 11, 1, 16, 16, 16),
@@ -783,6 +972,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                         Block.box(15, 1, 1, 16, 11, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get(),
                 // Block.box(0, 0, 15, 16, 16, 16),
                 Block.box(0, 0, 0, 16, 16, 1)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
+        WEST_OPEN_RIGHT_NOSLIDE = Stream.of(
+                Shapes.join(
+                    WEST_OPEN_RIGHT,
+                    Block.box(-5, 0, 1, 0, 1, 16),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(0, 0, 1, 5, 1, 16)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
         WEST_OPEN_LEFT = Stream.of(
                 Stream.of(
@@ -799,6 +997,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         // Block.box(0, 0, 0, 16, 16, 1)
         ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
+        WEST_OPEN_LEFT_NOSLIDE = Stream.of(
+                Shapes.join(
+                    WEST_OPEN_LEFT,
+                    Block.box(-5, 0, 0, 0, 1, 15),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(0, 0, 0, 5, 1, 15)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
         WEST_OPEN_BOTH = Stream.of(
                 Block.box(11, 11, 0, 16, 16, 16),
                 Stream.of(
@@ -808,6 +1015,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
                 Shapes.join(Block.box(0, 1, 0, 5, 6, 16), Block.box(-5, 0, 0, 0, 1, 16), BooleanOp.OR),
                 Block.box(5, 0, 0, 16, 1, 16),
                 Block.box(15, 1, 0, 16, 11, 16)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
+        WEST_OPEN_BOTH_NOSLIDE = Stream.of(
+                Shapes.join(
+                    WEST_OPEN_BOTH,
+                    Block.box(-5, 0, 0, 0, 1, 16),
+                    BooleanOp.ONLY_FIRST
+            ),
+            Block.box(0, 0, 0, 5, 1, 16)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
     }
 

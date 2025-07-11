@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "BuilderTransformersMixin",
-    "ContraptionMixin"
+    "ContraptionMixin",
+    "ScrollValueRendererMixin"
   ],
   "client": [],
   "server": [],

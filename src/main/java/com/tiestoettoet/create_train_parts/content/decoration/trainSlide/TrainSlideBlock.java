@@ -1,6 +1,8 @@
 package com.tiestoettoet.create_train_parts.content.decoration.trainSlide;
 
 import com.mojang.serialization.MapCodec;
+import com.simibubi.create.content.equipment.wrench.IWrenchable;
+import com.simibubi.create.foundation.block.IHaveBigOutline;
 import com.tiestoettoet.create_train_parts.AllBlockEntityTypes;
 import com.tiestoettoet.create_train_parts.AllBlocks;
 
@@ -42,7 +44,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import com.simibubi.create.foundation.block.IBE;
 
-public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<TrainSlideBlockEntity> {
+public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<TrainSlideBlockEntity>, IHaveBigOutline, IWrenchable {
 
     public static final BooleanProperty OPEN = BooleanProperty.create("open");
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
@@ -136,6 +138,11 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
     }
 
     @Override
+    public VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return getShape(state, level, pos, CollisionContext.empty());
+    }
+
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
         BlockPos pos = pContext.getClickedPos(); // Retrieve the BlockPos
         BlockState state = pContext.getLevel().getBlockState(pos);
@@ -205,9 +212,9 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
         } else if (item.getItem() == AllBlocks.TRAIN_SLIDE_COPPER.asItem()) {
             return TrainSlideType.COPPER;
         }
-//        else if (item.getItem() == AllBlocks.TRAIN_SLIDE_TRAIN.asItem()) {
-//            return TrainSlideType.TRAIN;
-//        }
+        else if (item.getItem() == AllBlocks.TRAIN_SLIDE_TRAIN.asItem()) {
+            return TrainSlideType.TRAIN;
+        }
         // else if (item.is(AllBlocks.TRAIN_STEP_TRAIN.asItem())) {
         // return TrainSlideType.TRAIN;
         // }
@@ -353,7 +360,7 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
             @Nullable
             BlockState oldRightState = neighborStates.get("right");
             if ((oldLeftState != null && leftState.getBlock() != oldLeftState.getBlock()) || (oldRightState != null && rightState.getBlock() != oldRightState.getBlock())) {
-                System.out.println("Neighbor changed detected: Left State: " + leftState.getBlock() + ", Right State: " + rightState.getBlock() + ", Old Left State: " + oldLeftState.getBlock() + ", Old Right State: " + oldRightState.getBlock());
+//                System.out.println("Neighbor changed detected: Left State: " + leftState.getBlock() + ", Right State: " + rightState.getBlock() + ", Old Left State: " + oldLeftState.getBlock() + ", Old Right State: " + oldRightState.getBlock());
                 state = getState(state, pos, level, state.getValue(FACING), "neighborChanged");
                 state = state.setValue(POWERED, powered)
                         .setValue(OPEN, open)
