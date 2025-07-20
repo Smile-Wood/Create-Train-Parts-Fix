@@ -1,11 +1,14 @@
 package com.tiestoettoet.create_train_parts.content.decoration.trainSlide;
 
+import com.simibubi.create.content.contraptions.AssemblyException;
 import com.simibubi.create.content.decoration.slidingDoor.SlidingDoorBlock;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.Blocks;
@@ -23,11 +26,23 @@ public class TrainSlideBlockEntity extends SmartBlockEntity {
     boolean deferUpdate;
     Map<String, BlockState> neighborStates = new HashMap<>();
     TrainSlideType trainSlideType;
+    protected AssemblyException lastException;
+    Object openObj = null;
 
     public TrainSlideBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         animation = LerpedFloat.linear()
                 .startWithValue(isOpen(getBlockState()) ? 1 : 0);
+    }
+
+    @Override
+    protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+        lastException = AssemblyException.read(tag, registries);
+        super.read(tag, registries, clientPacket);
+        invalidateRenderBoundingBox();
+
+        if (tag.contains("ForceOpen"))
+            openObj = tag.getBoolean("ForceOpen");
     }
 
     @Override
@@ -38,7 +53,12 @@ public class TrainSlideBlockEntity extends SmartBlockEntity {
             blockState.handleNeighborChanged(level, worldPosition, Blocks.AIR, worldPosition, false);
         }
         super.tick();
-        boolean open = isOpen(getBlockState());
+        BlockState block = getBlockState();
+        TrainSlideBlock trainSlideBlock = (TrainSlideBlock) block.getBlock();
+        boolean open = openObj instanceof Boolean ? (Boolean) openObj : isOpen(getBlockState());
+        if (open != isOpen(getBlockState())) {
+            trainSlideBlock.toggle(block, level, worldPosition, null, null, open);
+        }
         boolean wasSettled = animation.settled();
         animation.chase(open ? 1 : 0, .15f, LerpedFloat.Chaser.LINEAR);
         animation.tickChaser();

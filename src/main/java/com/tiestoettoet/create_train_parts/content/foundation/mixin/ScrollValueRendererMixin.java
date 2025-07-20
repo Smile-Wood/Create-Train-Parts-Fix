@@ -66,7 +66,7 @@ public class ScrollValueRendererMixin {
                 continue;
             boolean highlight = behaviour.testHit(target.getLocation()) && !clipboard && !highlightFound;
 
-            System.out.println("Checking behaviour: " + blockEntityBehaviour.getType() + " on " + sbe.getBlockPos());
+//            System.out.println("Checking behaviour: " + blockEntityBehaviour.getType() + " on " + sbe.getBlockPos());
             if (behaviour instanceof BulkScrollValueBehaviour bulkScrolling && AllKeys.ctrlDown()) {
                 for (SmartBlockEntity smartBlockEntity : bulkScrolling.getBulk()) {
                     ScrollValueBehaviour other = smartBlockEntity.getBehaviour(ScrollValueBehaviour.TYPE);

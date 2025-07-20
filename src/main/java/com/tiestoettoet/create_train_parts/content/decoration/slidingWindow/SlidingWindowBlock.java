@@ -238,12 +238,12 @@ public class SlidingWindowBlock extends HorizontalDirectionalBlock
         super.onExplosionHit(state, level, pos, explosion, dropConsumer);
     }
 
-    private void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
+    public void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
             Boolean open) {
         toggle(state, level, pos, player, ignore, open, 10);
     }
 
-    private void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
+    public void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
             Boolean open, int flags) {
         state = state.cycle(OPEN);
         // level.setBlock(pos, blockstate, 2);
@@ -492,8 +492,8 @@ public class SlidingWindowBlock extends HorizontalDirectionalBlock
 
     @Override
     public boolean skipRendering(BlockState state, BlockState other, Direction side) {
-        if (isConnected(state, other, side))
-            System.out.println("Skipping rendering for " + state + " and " + other + " on side " + side);
+//        if (isConnected(state, other, side))
+//            System.out.println("Skipping rendering for " + state + " and " + other + " on side " + side);
         return isConnected(state, other, side);
     }
 

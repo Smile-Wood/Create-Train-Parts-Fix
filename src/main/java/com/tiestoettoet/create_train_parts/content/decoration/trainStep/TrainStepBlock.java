@@ -303,12 +303,12 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         super.onExplosionHit(state, level, pos, explosion, dropConsumer);
     }
 
-    private void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
+    public void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
             Boolean open) {
         toggle(state, level, pos, player, ignore, open, 10);
     }
 
-    private void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
+    public void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
             Boolean open, int flags) {
         state = state.cycle(OPEN);
         // level.setBlock(pos, blockstate, 2);
@@ -621,6 +621,15 @@ public class TrainStepBlock extends HorizontalDirectionalBlock implements IBE<Tr
         // else
         // finalState = finalState.setValue(VISIBLE, true);
         return finalState;
+    }
+
+    public static boolean sameKind(BlockState state1, BlockState state2) {
+        return state1.getValue(FACING) == state2.getValue(FACING) &&
+                state1.getValue(OPEN) == state2.getValue(OPEN) &&
+                state1.getValue(POWERED) == state2.getValue(POWERED) &&
+                state1.getValue(VISIBLE) == state2.getValue(VISIBLE) &&
+                state1.getValue(TYPE) == state2.getValue(TYPE);
+
     }
 
     public static boolean isStepPowered(Level level, BlockPos pos, BlockState state) {

@@ -43,7 +43,10 @@ public class AllPartialModels {
     public static final Map<ResourceLocation, PartialModel> TRAIN_SLIDE_TOP = new HashMap<>();
 
     public static final Map<ResourceLocation, PartialModel> SLIDING_WINDOW = new HashMap<>();
-    public static final Map<ResourceLocation, PartialModel> SLIDING_WINDOW_SIDE = new HashMap<>();
+    public static final Map<ResourceLocation, PartialModel> SLIDING_WINDOW_UP = new HashMap<>();
+    public static final Map<ResourceLocation, PartialModel> SLIDING_WINDOW_RIGHT = new HashMap<>();
+    public static final Map<ResourceLocation, PartialModel> SLIDING_WINDOW_DOWN = new HashMap<>();
+    public static final Map<ResourceLocation, PartialModel> SLIDING_WINDOW_LEFT = new HashMap<>();
     public static final Map<ResourceLocation, PartialModel> SLIDING_WINDOW_BACK = new HashMap<>();
 
     static {
@@ -102,13 +105,10 @@ public class AllPartialModels {
 
     private static void putSlidingWindow(String type) {
         SLIDING_WINDOW.put(CreateTrainParts.asResource("sliding_windows/" + type + "_main"), block("sliding_windows/" + type + "_main"));
-        SLIDING_WINDOW_SIDE.put(CreateTrainParts.asResource("sliding_windows/" + type + "_side"), block("sliding_windows/" + type + "_side"));
-        SLIDING_WINDOW_SIDE.put(CreateTrainParts.asResource("sliding_windows/" + type + "_side_left"), block("sliding_windows/" + type + "_side_left"));
-        SLIDING_WINDOW_SIDE.put(CreateTrainParts.asResource("sliding_windows/" + type + "_side_right"), block("sliding_windows/" + type + "_side_right"));
-        SLIDING_WINDOW_SIDE.put(CreateTrainParts.asResource("sliding_windows/" + type + "_side_none"), block("sliding_windows/" + type + "_side_none"));
-        SLIDING_WINDOW_SIDE.put(CreateTrainParts.asResource("sliding_windows/" + type + "_side_up"), block("sliding_windows/" + type + "_side_up"));
-        SLIDING_WINDOW_SIDE.put(CreateTrainParts.asResource("sliding_windows/" + type + "_side_down"), block("sliding_windows/" + type + "_side_down"));
-        SLIDING_WINDOW_SIDE.put(CreateTrainParts.asResource("sliding_windows/" + type + "_side_none_vertical"), block("sliding_windows/" + type + "_side_none_vertical"));
+        SLIDING_WINDOW_UP.put(CreateTrainParts.asResource("sliding_windows/" + type + "_up"), block("sliding_windows/" + type + "_up"));
+        SLIDING_WINDOW_RIGHT.put(CreateTrainParts.asResource("sliding_windows/" + type + "_right"), block("sliding_windows/" + type + "_right"));
+        SLIDING_WINDOW_DOWN.put(CreateTrainParts.asResource("sliding_windows/" + type + "_down"), block("sliding_windows/" + type + "_down"));
+        SLIDING_WINDOW_LEFT.put(CreateTrainParts.asResource("sliding_windows/" + type + "_left"), block("sliding_windows/" + type + "_left"));
         SLIDING_WINDOW_BACK.put(CreateTrainParts.asResource("sliding_windows/" + type + "_back"), block("sliding_windows/" + type + "_back"));
     }
 

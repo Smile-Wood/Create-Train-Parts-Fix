@@ -1,4 +1,4 @@
-package com.tiestoettoet.create_train_parts.content.decoration.slidingWindow;
+package com.tiestoettoet.create_train_parts.content.decoration.trainStep;
 
 import com.mojang.datafixers.util.Pair;
 import com.simibubi.create.AllItems;
@@ -15,16 +15,15 @@ import net.minecraft.world.phys.HitResult;
 
 import java.util.*;
 
-public class SlidingWindowRangeDisplay {
-
+public class TrainStepRangeDisplay {
     private static final int DISPLAY_TIME = 200;
     private static GroupEntry lastHoveredGroup = null;
 
     private static class Entry {
-        SlidingWindowBlockEntity be;
+        TrainStepBlockEntity be;
         int timer;
 
-        public Entry(SlidingWindowBlockEntity be) {
+        public Entry(TrainStepBlockEntity be) {
             this.be = be;
             timer = DISPLAY_TIME;
             Outliner.getInstance().showCluster(getOutlineKey(), createSelection(be))
@@ -38,9 +37,9 @@ public class SlidingWindowRangeDisplay {
             return Pair.of(be.getBlockPos(), 1);
         }
 
-        protected Set<BlockPos> createSelection(SlidingWindowBlockEntity slidingWindow) {
+        protected Set<BlockPos> createSelection(TrainStepBlockEntity trainStep) {
             Set<BlockPos> positions = new HashSet<>();
-            List<BlockPos> includedBlockPositions = slidingWindow.getIncludedBlockPositions(null, true);
+            List<BlockPos> includedBlockPositions = trainStep.getIncludedBlockPositions(null, true);
             if (includedBlockPositions == null)
                 return Collections.emptySet();
             positions.addAll(includedBlockPositions);
@@ -51,9 +50,9 @@ public class SlidingWindowRangeDisplay {
 
     private static class GroupEntry extends Entry {
 
-        List<SlidingWindowBlockEntity> includedBEs;
+        List<TrainStepBlockEntity> includedBEs;
 
-        public GroupEntry(SlidingWindowBlockEntity be) {
+        public GroupEntry(TrainStepBlockEntity be) {
             super(be);
         }
 
@@ -63,13 +62,13 @@ public class SlidingWindowRangeDisplay {
         }
 
         @Override
-        protected Set<BlockPos> createSelection(SlidingWindowBlockEntity slidingWindow) {
+        protected Set<BlockPos> createSelection(TrainStepBlockEntity trainStep) {
             Set<BlockPos> list = new HashSet<>();
-            includedBEs = be.collectSlidingWindowGroup();
+            includedBEs = be.collectTrainStepGroup();
             if (includedBEs == null)
                 return list;
-            for (SlidingWindowBlockEntity slidingWindowBlockEntity : includedBEs)
-                list.addAll(super.createSelection(slidingWindowBlockEntity));
+            for (TrainStepBlockEntity trainStepBlockEntity : includedBEs)
+                list.addAll(super.createSelection(trainStepBlockEntity));
             return list;
         }
 
@@ -112,7 +111,7 @@ public class SlidingWindowRangeDisplay {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity == null || blockEntity.isRemoved())
             return;
-        if (!(blockEntity instanceof SlidingWindowBlockEntity slidingWindowBlockEntity))
+        if (!(blockEntity instanceof TrainStepBlockEntity trainStepBlockEntity))
             return;
 
         boolean ctrl = AllKeys.ctrlDown();
@@ -120,7 +119,7 @@ public class SlidingWindowRangeDisplay {
         if (ctrl) {
             GroupEntry existingGroupForPos = getExistingGroupForPos(pos);
             if (existingGroupForPos != null) {
-                for (SlidingWindowBlockEntity included : existingGroupForPos.includedBEs) {
+                for (TrainStepBlockEntity included : existingGroupForPos.includedBEs) {
 //                    System.out.println("Removing: " + included.getBlockPos());
                     entries.remove(included.getBlockPos());
                 }
@@ -136,7 +135,7 @@ public class SlidingWindowRangeDisplay {
 
         if (!entries.containsKey(pos) || ctrl) {
 //            System.out.println("Displaying sliding window at pos: " + pos + ", ctrl: " + ctrl+ ", entries: " + entries.toString() + ", groupEntries: " + groupEntries.toString());
-            display(slidingWindowBlockEntity);
+            display(trainStepBlockEntity);
         }
         else {
             if (!ctrl)
@@ -145,12 +144,12 @@ public class SlidingWindowRangeDisplay {
     }
 
     private static boolean tickEntry(Entry entry, boolean hasWrench) {
-        SlidingWindowBlockEntity slidingWindowBlockEntity = entry.be;
-        Level beWorld = slidingWindowBlockEntity.getLevel();
+        TrainStepBlockEntity trainStepBlockEntity = entry.be;
+        Level beWorld = trainStepBlockEntity.getLevel();
         Level world = Minecraft.getInstance().level;
 
-        if (slidingWindowBlockEntity.isRemoved() || beWorld == null || beWorld != world
-                || !world.isLoaded(slidingWindowBlockEntity.getBlockPos())) {
+        if (trainStepBlockEntity.isRemoved() || beWorld == null || beWorld != world
+                || !world.isLoaded(trainStepBlockEntity.getBlockPos())) {
             return true;
         }
 
@@ -165,12 +164,12 @@ public class SlidingWindowRangeDisplay {
         return false;
     }
 
-    public static void display(SlidingWindowBlockEntity slidingWindow) {
+    public static void display(TrainStepBlockEntity trainStep) {
 
         if (AllKeys.ctrlDown()) {
-            GroupEntry hoveredGroup = new GroupEntry(slidingWindow);
+            GroupEntry hoveredGroup = new GroupEntry(trainStep);
 
-            for (SlidingWindowBlockEntity included : hoveredGroup.includedBEs) {
+            for (TrainStepBlockEntity included : hoveredGroup.includedBEs) {
 //                System.out.println("Removing: " + included.getBlockPos());
                 Outliner.getInstance().remove(Pair.of(included.getBlockPos(), 1));
             }
@@ -179,31 +178,30 @@ public class SlidingWindowRangeDisplay {
             groupEntries.clear();
             entries.clear();
             groupEntries.add(hoveredGroup);
-//            System.out.println("Displaying group for sliding window at pos: " + slidingWindow.getBlockPos() + ", entries: " + entries.toString() + ", groupEntries: " + groupEntries.toString());
             for (GroupEntry groupEntry : groupEntries) {
 //                System.out.println("GroupEntry:");
-                for (SlidingWindowBlockEntity object : groupEntry.includedBEs) {
+                for (TrainStepBlockEntity object : groupEntry.includedBEs) {
 //                    System.out.println(" - BlockPos: " + object.getBlockPos());
                 }
             }
             return;
         }
 
-        BlockPos pos = slidingWindow.getBlockPos();
+        BlockPos pos = trainStep.getBlockPos();
         GroupEntry entry = getExistingGroupForPos(pos);
         if (entry != null)
             Outliner.getInstance().remove(entry.getOutlineKey());
 
         groupEntries.clear();
         entries.clear();
-        entries.put(pos, new Entry(slidingWindow));
+        entries.put(pos, new Entry(trainStep));
 
     }
 
     private static GroupEntry getExistingGroupForPos(BlockPos pos) {
         for (GroupEntry groupEntry : groupEntries)
-            for (SlidingWindowBlockEntity slidingWindow : groupEntry.includedBEs)
-                if (pos.equals(slidingWindow.getBlockPos()))
+            for (TrainStepBlockEntity trainStep : groupEntry.includedBEs)
+                if (pos.equals(trainStep.getBlockPos()))
                     return groupEntry;
         return null;
     }

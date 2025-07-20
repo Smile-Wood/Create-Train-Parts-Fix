@@ -246,12 +246,12 @@ public class TrainSlideBlock extends HorizontalDirectionalBlock implements IBE<T
         super.onExplosionHit(state, level, pos, explosion, dropConsumer);
     }
 
-    private void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
+    public void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
             Boolean open) {
         toggle(state, level, pos, player, ignore, open, 10);
     }
 
-    private void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
+    public void toggle(BlockState state, Level level, BlockPos pos, @Nullable Player player, String ignore,
             Boolean open, int flags) {
         state = state.cycle(OPEN);
         // level.setBlock(pos, blockstate, 2);

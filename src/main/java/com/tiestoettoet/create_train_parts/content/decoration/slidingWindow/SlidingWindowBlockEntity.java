@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.api.contraption.BlockMovementChecks;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.content.contraptions.AssemblyException;
 import com.simibubi.create.content.contraptions.chassis.ChassisRangeDisplay;
 import com.simibubi.create.content.contraptions.chassis.LinearChassisBlock;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -19,6 +20,7 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.tiestoettoet.create_train_parts.AllBlocks;
 import com.tiestoettoet.create_train_parts.CreateTrainParts;
+import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock;
 import com.tiestoettoet.create_train_parts.content.foundation.blockEntity.behaviour.scrollValue.BulkScrollOptionBehaviour;
 import com.tiestoettoet.create_train_parts.content.foundation.gui.AllIcons;
 import com.tiestoettoet.create_train_parts.content.foundation.utility.CreateTrainPartsLang;
@@ -28,6 +30,8 @@ import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -60,11 +64,24 @@ public class SlidingWindowBlockEntity extends SmartBlockEntity implements IHaveG
 
     public int currentlySelectedRange;
 
+    protected AssemblyException lastException;
+    Object openObj = null;
+
 
     public SlidingWindowBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         animation = LerpedFloat.linear()
                 .startWithValue(isOpen(getBlockState()) ? 1 : 0);
+    }
+
+    @Override
+    protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+        lastException = AssemblyException.read(tag, registries);
+        super.read(tag, registries, clientPacket);
+        invalidateRenderBoundingBox();
+
+        if (tag.contains("ForceOpen"))
+            openObj = tag.getBoolean("ForceOpen");
     }
 
     @Override
@@ -124,14 +141,14 @@ public class SlidingWindowBlockEntity extends SmartBlockEntity implements IHaveG
                 continue;
             visited.add(current);
             BlockEntity blockEntity = level.getBlockEntity(current);
-            System.out.println("Visiting block at: " + current + ", BlockEntity: " + blockEntity);
+//            System.out.println("Visiting block at: " + current + ", BlockEntity: " + blockEntity);
             if (blockEntity instanceof SlidingWindowBlockEntity slidingWindow) {
                 collected.add(slidingWindow);
                 visited.add(current);
                 slidingWindow.addAttachedSlidingWindows(frontier, visited);
             }
         }
-        System.out.println("SlidingWindow group size: " + collected.size());
+//        System.out.println("SlidingWindow group size: " + collected.size());
 
 
         return collected;
@@ -178,7 +195,12 @@ public class SlidingWindowBlockEntity extends SmartBlockEntity implements IHaveG
             blockState.handleNeighborChanged(level, worldPosition, Blocks.AIR, worldPosition, false);
         }
         super.tick();
-        boolean open = isOpen(getBlockState());
+        BlockState block = getBlockState();
+        SlidingWindowBlock slidingWindowBlock = (SlidingWindowBlock) block.getBlock();
+        boolean open = openObj instanceof Boolean ? (Boolean) openObj : isOpen(getBlockState());
+        if (open != isOpen(getBlockState())) {
+            slidingWindowBlock.toggle(block, level, worldPosition, null, null, open);
+        }
         boolean wasSettled = animation.settled();
         animation.chase(open ? 1 : 0, .15f, LerpedFloat.Chaser.LINEAR);
         animation.tickChaser();
@@ -213,6 +235,12 @@ public class SlidingWindowBlockEntity extends SmartBlockEntity implements IHaveG
     protected void showBlockModel() {
         level.setBlock(worldPosition, getBlockState().setValue(SlidingWindowBlock.VISIBLE, true), 3);
         level.playSound(null, worldPosition, SoundEvents.IRON_DOOR_CLOSE, SoundSource.BLOCKS, .5f, 1);
+    }
+
+    public void setMode(SelectionMode mode) {
+        if (mode != null) {
+            selectionMode.setValue(mode.ordinal());
+        }
     }
 
     public enum SelectionMode implements INamedIconOptions, StringRepresentable {
@@ -303,7 +331,7 @@ public class SlidingWindowBlockEntity extends SmartBlockEntity implements IHaveG
             if (!valueSetting.equals(getValueSettings()))
                 playFeedbackSound(this);
             for (SmartBlockEntity be : getBulk()) {
-                System.out.println("Setting value for " + be.getBlockPos() + " to " + valueSetting.value() + " in SlidingWindowBlockEntity");
+//                System.out.println("Setting value for " + be.getBlockPos() + " to " + valueSetting.value() + " in SlidingWindowBlockEntity");
                 if (be instanceof SlidingWindowBlockEntity cbe && cbe.selectionMode != null)
                     cbe.selectionMode.setValue(valueSetting.value());
             }

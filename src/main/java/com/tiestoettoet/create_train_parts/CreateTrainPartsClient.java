@@ -27,6 +27,8 @@ import com.simibubi.create.foundation.render.AllInstanceTypes;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.gui.CreateMainMenuScreen;
 
+import com.tiestoettoet.create_train_parts.foundation.ponder.CreateTrainPartsPonderPlugin;
+import com.tiestoettoet.create_train_parts.infrastructure.ponder.AllCreateTrainPartsPonderScenes;
 import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.createmod.catnip.config.ui.ConfigScreen;
 import net.createmod.catnip.render.CachedBuffers;
@@ -60,6 +62,8 @@ public class CreateTrainPartsClient {
 
         AllInstanceTypes.init();
 
+//        AllCreateTrainPartsPonderScenes.register();
+
         Mods.FTBLIBRARY.executeIfInstalled(() -> () -> FTBIntegration.init(modEventBus, neoEventBus));
         Mods.SODIUM.executeIfInstalled(() -> () -> SodiumCompat.init(modEventBus, neoEventBus));
     }
@@ -69,5 +73,6 @@ public class CreateTrainPartsClient {
 
         System.out.println("Create Train Parts Client Init");
         AllPartialModels.init();
+        PonderIndex.addPlugin(new CreateTrainPartsPonderPlugin());
     }
 }

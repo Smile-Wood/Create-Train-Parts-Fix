@@ -59,6 +59,19 @@ public class SlidingWindowRenderer  extends SafeBlockEntityRenderer<SlidingWindo
         if (!be.shouldRenderSpecial(blockState))
             return;
 
+        Boolean right = !(rightState.getBlock() instanceof SlidingWindowBlock &&
+                rightState.getValue(SlidingWindowBlock.FACING) == blockState.getValue(SlidingWindowBlock.FACING) &&
+                mode == rightMode);
+        Boolean left = !(leftState.getBlock() instanceof SlidingWindowBlock &&
+                leftState.getValue(SlidingWindowBlock.FACING) == blockState.getValue(SlidingWindowBlock.FACING) &&
+                mode == leftMode);
+        Boolean up = !(upState.getBlock() instanceof SlidingWindowBlock &&
+                upState.getValue(SlidingWindowBlock.FACING) == blockState.getValue(SlidingWindowBlock.FACING) &&
+                mode == upMode);
+        Boolean down = !(downState.getBlock() instanceof SlidingWindowBlock &&
+                downState.getValue(SlidingWindowBlock.FACING) == blockState.getValue(SlidingWindowBlock.FACING) &&
+                mode == downMode);
+
         BlockPos pos = be.getBlockPos();
         BlockAndTintGetter world = be.getLevel();
 
@@ -171,36 +184,65 @@ public class SlidingWindowRenderer  extends SafeBlockEntityRenderer<SlidingWindo
 
             ResourceLocation resourceLocationMain = CreateTrainParts.asResource(
                     "sliding_windows/" + type + "_main");
-            ResourceLocation resourceLocationSide = CreateTrainParts.asResource(
-                "sliding_windows/" + type +
-                ((rightState.getBlock() instanceof SlidingWindowBlock && rightState.getValue(SlidingWindowBlock.FACING) == facing && mode == rightMode) &&
-                 (leftState.getBlock() instanceof SlidingWindowBlock && leftState.getValue(SlidingWindowBlock.FACING) == facing && mode == leftMode) ? "_side_none" :
-                 (rightState.getBlock() instanceof SlidingWindowBlock && rightState.getValue(SlidingWindowBlock.FACING) == facing && mode == rightMode) ? "_side_right" :
-                 (leftState.getBlock() instanceof SlidingWindowBlock && leftState.getValue(SlidingWindowBlock.FACING) == facing && mode == leftMode) ? "_side_left" :
-                 ((upState.getBlock() instanceof SlidingWindowBlock && upState.getValue(SlidingWindowBlock.FACING) == facing && mode == upMode) &&
-                 (downState.getBlock() instanceof SlidingWindowBlock && downState.getValue(SlidingWindowBlock.FACING) == facing && mode == downMode) ? "_side_none_vertical" :
-                 (upState.getBlock() instanceof SlidingWindowBlock && upState.getValue(SlidingWindowBlock.FACING) == facing && mode == upMode) ? "_side_down" :
-                 (downState.getBlock() instanceof SlidingWindowBlock && downState.getValue(SlidingWindowBlock.FACING) == facing && mode == downMode) ? "_side_up" :
-                 "_side_none"))
-            );
+//            ResourceLocation resourceLocationSide = CreateTrainParts.asResource(
+//                "sliding_windows/" + type + suffix
+////                ((rightState.getBlock() instanceof SlidingWindowBlock && rightState.getValue(SlidingWindowBlock.FACING) == facing && mode == rightMode) &&
+////                 (leftState.getBlock() instanceof SlidingWindowBlock && leftState.getValue(SlidingWindowBlock.FACING) == facing && mode == leftMode) ? "_side_none" :
+////                 (rightState.getBlock() instanceof SlidingWindowBlock && rightState.getValue(SlidingWindowBlock.FACING) == facing && mode == rightMode) ? "_side_right" :
+////                 (leftState.getBlock() instanceof SlidingWindowBlock && leftState.getValue(SlidingWindowBlock.FACING) == facing && mode == leftMode) ? "_side_left" :
+////                 ((upState.getBlock() instanceof SlidingWindowBlock && upState.getValue(SlidingWindowBlock.FACING) == facing && mode == upMode) &&
+////                 (downState.getBlock() instanceof SlidingWindowBlock && downState.getValue(SlidingWindowBlock.FACING) == facing && mode == downMode) ? "_side_none_vertical" :
+////                 (upState.getBlock() instanceof SlidingWindowBlock && upState.getValue(SlidingWindowBlock.FACING) == facing && mode == upMode) ? "_side_down" :
+////                 (downState.getBlock() instanceof SlidingWindowBlock && downState.getValue(SlidingWindowBlock.FACING) == facing && mode == downMode) ? "_side_up" :
+////                 "_side"))
+//            );
+            ResourceLocation resourceLocationUp = CreateTrainParts.asResource(
+                    "sliding_windows/" + type + "_up");
+            ResourceLocation resourceLocationRight = CreateTrainParts.asResource(
+                    "sliding_windows/" + type + "_right");
+            ResourceLocation resourceLocationDown = CreateTrainParts.asResource(
+                    "sliding_windows/" + type + "_down");
+            ResourceLocation resourceLocationLeft = CreateTrainParts.asResource(
+                    "sliding_windows/" + type + "_left");
             ResourceLocation resourceLocationBack = CreateTrainParts.asResource(
                     "sliding_windows/" + type + "_back");
 
             PartialModel main = AllPartialModels.SLIDING_WINDOW.get(resourceLocationMain);
-            PartialModel side = AllPartialModels.SLIDING_WINDOW_SIDE.get(resourceLocationSide);
+            PartialModel upModel = AllPartialModels.SLIDING_WINDOW_UP.get(resourceLocationUp);
+            PartialModel rightModel = AllPartialModels.SLIDING_WINDOW_RIGHT.get(resourceLocationRight);
+            PartialModel downModel = AllPartialModels.SLIDING_WINDOW_DOWN.get(resourceLocationDown);
+            PartialModel leftModel = AllPartialModels.SLIDING_WINDOW_LEFT.get(resourceLocationLeft);
             PartialModel back = AllPartialModels.SLIDING_WINDOW_BACK.get(resourceLocationBack);
 //            System.out.println("Main model: " + resourceLocationMain);
 
             SuperByteBuffer partial_main = CachedBuffers.partial(main, blockState);
-            SuperByteBuffer partial_side = CachedBuffers.partial(side, blockState);
+            SuperByteBuffer partial_up = CachedBuffers.partial(upModel, blockState);
+            SuperByteBuffer partial_right = CachedBuffers.partial(rightModel, blockState);
+            SuperByteBuffer partial_down = CachedBuffers.partial(downModel, blockState);
+            SuperByteBuffer partial_left = CachedBuffers.partial(leftModel, blockState);
             SuperByteBuffer partial_back = CachedBuffers.partial(back, blockState);
 
-            partial_side.translate(moveOffset.x, upOffset.y, moveOffset.z)
-                    .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                    .light(light)
-                    .renderInto(ms, vb);
+            List<SuperByteBuffer> partialSides = new ArrayList<>();
 
+            if (up) {
+                partialSides.add(partial_up);
+            }
+            if (right) {
+                partialSides.add(partial_right);
+            }
+            if (down) {
+                partialSides.add(partial_down);
+            }
+            if (left) {
+                partialSides.add(partial_left);
+            }
 
+            for (SuperByteBuffer partial_side : partialSides) {
+                partial_side.translate(moveOffset.x, upOffset.y, moveOffset.z)
+                        .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                        .light(light)
+                        .renderInto(ms, vb);
+            }
 
             ConnectedTextureBehaviour.CTContext context = behaviour.buildContext(world, pos, blockState, facing.getOpposite(), dataType.getContextRequirement());
 

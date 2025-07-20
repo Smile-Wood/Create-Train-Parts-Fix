@@ -44,7 +44,7 @@ public class SlidingWindowMovementBehaviour implements MovementBehaviour {
         if (structureBlockInfo == null)
             return;
         boolean open = SlidingWindowBlockEntity.isOpen(structureBlockInfo.state());
-        System.out.println();
+//        System.out.println();
 
         if (!context.world.isClientSide())
             tickOpen(context, open);

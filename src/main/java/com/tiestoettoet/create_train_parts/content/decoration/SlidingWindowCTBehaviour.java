@@ -57,22 +57,24 @@ public class SlidingWindowCTBehaviour extends ConnectedTextureBehaviour.Base {
         SlidingWindowBlockEntity.SelectionMode otherMode = otherBlockEntity instanceof SlidingWindowBlockEntity slidingWindowBlockEntity
                 ? slidingWindowBlockEntity.getMode()
                 : SlidingWindowBlockEntity.SelectionMode.UP;
+//
+//        if (mode == SlidingWindowBlockEntity.SelectionMode.DOWN || mode == SlidingWindowBlockEntity.SelectionMode.UP) {
+//            int yLevel = pos.getY();
+//            int otherYLevel = otherPos.getY();
+//            return facing == otherFacing && yLevel == otherYLevel && state.getBlock() == other.getBlock() && mode == otherMode;
+//
+//        } else if (mode == SlidingWindowBlockEntity.SelectionMode.LEFT || mode == SlidingWindowBlockEntity.SelectionMode.RIGHT) {
+//            int xLevel = pos.getX();
+//            int otherXLevel = otherPos.getX();
+////            System.out.println("Facing: " + facing + ", Other Facing: " + otherFacing);
+////            System.out.println("X Level: " + xLevel + ", Other X Level: " + otherXLevel);
+////            System.out.println("State Block: " + state.getBlock() + ", Other Block: " + other.getBlock());
+////            System.out.println("Mode: " + mode + ", Other Mode: " + otherMode);
+//            return facing == otherFacing && xLevel == otherXLevel && state.getBlock() == other.getBlock() && mode == otherMode;
+//        }
+        return mode == otherMode && facing == otherFacing && state.getBlock() == other.getBlock();
 
-        if (mode == SlidingWindowBlockEntity.SelectionMode.DOWN || mode == SlidingWindowBlockEntity.SelectionMode.UP) {
-            int yLevel = pos.getY();
-            int otherYLevel = otherPos.getY();
-            return facing == otherFacing && yLevel == otherYLevel && state.getBlock() == other.getBlock() && mode == otherMode;
-
-        } else if (mode == SlidingWindowBlockEntity.SelectionMode.LEFT || mode == SlidingWindowBlockEntity.SelectionMode.RIGHT) {
-            int xLevel = pos.getX();
-            int otherXLevel = otherPos.getX();
-//            System.out.println("Facing: " + facing + ", Other Facing: " + otherFacing);
-//            System.out.println("X Level: " + xLevel + ", Other X Level: " + otherXLevel);
-//            System.out.println("State Block: " + state.getBlock() + ", Other Block: " + other.getBlock());
-//            System.out.println("Mode: " + mode + ", Other Mode: " + otherMode);
-            return facing == otherFacing && xLevel == otherXLevel && state.getBlock() == other.getBlock() && mode == otherMode;
-        }
-        return false;
+//        return false;
     }
 
 
