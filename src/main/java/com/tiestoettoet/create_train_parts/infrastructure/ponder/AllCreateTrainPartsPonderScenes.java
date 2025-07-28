@@ -21,7 +21,8 @@ public class AllCreateTrainPartsPonderScenes {
                 .addStoryBoard("train_step/assembly", TrainStepSlideScenes::assembly);
 
         HELPER.forComponents(AllBlocks.GLASS_SLIDING_WINDOW, AllBlocks.ANDESITE_SLIDING_WINDOW, AllBlocks.BRASS_SLIDING_WINDOW, AllBlocks.COPPER_SLIDING_WINDOW, AllBlocks.TRAIN_SLIDING_WINDOW)
-                .addStoryBoard("sliding_window/window", SlidingWindowScenes::modes);
+                .addStoryBoard("sliding_window/window", SlidingWindowScenes::modes)
+                .addStoryBoard("sliding_window/window_train", SlidingWindowScenes::trainBehaviour);
     }
 
 }

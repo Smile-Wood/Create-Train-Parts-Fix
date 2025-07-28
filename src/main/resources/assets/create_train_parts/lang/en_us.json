@@ -29,6 +29,11 @@
   "create_train_parts.ponder.window_modes.text_1": "Sliding Windows normally open upwards",
   "create_train_parts.ponder.window_modes.text_2": "But you can configure it to open another Direction",
   "create_train_parts.ponder.window_modes.text_3": "Connected Windows with the same Mode will open together",
+  "create_train_parts.ponder.window_modes.text_4": "Holding Control changes all Windows",
+
+  "create_train_parts.ponder.train_behaviour.header": "Window Behaviour on Trains",
+  "create_train_parts.ponder.train_behaviour.text_1": "Windows that are set to open Left or Right open automatically at Train Stations",
+  "create_train_parts.ponder.train_behaviour.text_2": "Windows that are set to open Up or Down can only be opened manually",
 
   "create_train_parts.sliding_window.mode": "Sliding Window Mode",
   "create.window.mode.up": "Move Up",

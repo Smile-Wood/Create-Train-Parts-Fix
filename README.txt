@@ -1,46 +1,21 @@
+<p align="center"><img src="./.idea/icon.png" alt="Logo" width="200"></p>
+<h1 align="center">Create Train Parts <br>
+	<a href="https://www.curseforge.com/minecraft/mc-mods/create-train-parts/files"><img src="https://img.shields.io/curseforge/game-versions/1294279" alt="Supported Versions"></a>
+	<a href="https://github.com/TiesToetToet/Create-Train-Parts/blob/main/LICENSE"><img src="https://img.shields.io/github/license/TiesToetToet/Create-Train-Parts?style=flat&color=900c3f" alt="License"></a>
+	<a href="https://discord.gg/MAUQeSyFvr"><img src="https://img.shields.io/discord/1399377755384188940?color=5865f2&label=Discord&style=flat" alt="Discord"></a>
+	<a href="https://www.curseforge.com/minecraft/mc-mods/create-train-parts"><img src="https://img.shields.io/curseforge/dt/1294279?logo=curseforge&label=&suffix=%20&style=flat&color=242629&labelColor=e04e14&logoColor=1c1c1c" alt="CF"></a>
+    <a href="https://modrinth.com/mod/create-train-parts"><img src="https://img.shields.io/modrinth/dt/create-train-parts?logo=modrinth&label=&suffix=%20&style=flat&color=242629&labelColor=5ca424&logoColor=1c1c1c" alt="Modrinth"></a>
+    <br><br>
+</h1>
 
-Source installation information for modders
--------------------------------------------
-This code follows the Minecraft Forge installation methodology. It will apply
-some small patches to the vanilla MCP source code, giving you and it access 
-to some of the data and functions you need to build a successful mod.
+<p>Create Train Parts is an addon for the Create mod that introduces a variety of new decorative and functional components for trains and railways. Enhance your builds with new sliding windows, train steps, slides, and more, all designed to fit seamlessly into the Create ecosystem.</p>
+<p>Features</p>
+<ul>
+<li>Sliding Windows: Add interactive sliding windows to your train carriages and structures.</li>
+<li>Train Steps &amp; Slides: New decorative and functional blocks for easier access and more realistic trains.</li>
+<li>Integration: Designed to work perfectly alongside the Create mod and its mechanics.</li>
+<li>Configurable: Many parts can be customized or interacted with using Create&#39;s tools.</li>
+</ul>
 
-Note also that the patches are built against "un-renamed" MCP source code (aka
-SRG Names) - this means that you will not be able to read them directly against
-normal code.
-
-Setup Process:
-==============================
-
-Step 1: Open your command-line and browse to the folder where you extracted the zip file.
-
-Step 2: You're left with a choice.
-If you prefer to use Eclipse:
-1. Run the following command: `gradlew genEclipseRuns` (`./gradlew genEclipseRuns` if you are on Mac/Linux)
-2. Open Eclipse, Import > Existing Gradle Project > Select Folder 
-   or run `gradlew eclipse` to generate the project.
-
-If you prefer to use IntelliJ:
-1. Open IDEA, and import project.
-2. Select your build.gradle file and have it import.
-3. Run the following command: `gradlew genIntellijRuns` (`./gradlew genIntellijRuns` if you are on Mac/Linux)
-4. Refresh the Gradle Project in IDEA if required.
-
-If at any point you are missing libraries in your IDE, or you've run into problems you can 
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
-
-Mapping Names:
-=============================
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license, if you do not agree with it you can change your mapping names to other crowdsourced names in your 
-build.gradle. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/MinecraftForge/MCPConfig/blob/master/Mojang.md
-
-Additional Resources: 
-=========================
-Community Documentation: https://mcforge.readthedocs.io/en/latest/gettingstarted/  
-LexManos' Install Video: https://www.youtube.com/watch?v=8VEdtQLuLO0  
-Forge Forum: https://forums.minecraftforge.net/  
-Forge Discord: https://discord.gg/UvedJ9m  
+<h1></h1>
+<h4 align="center">Find out more about Create on our <a href="https://www.curseforge.com/minecraft/mc-mods/create-train-parts">Curseforge</a> or <a href="https://modrinth.com/mod/create-train-parts">Modrinth</a> Page</h4>

@@ -67,6 +67,8 @@ public class SlidingWindowBlockEntity extends SmartBlockEntity implements IHaveG
     protected AssemblyException lastException;
     Object openObj = null;
 
+    private boolean manuallyClosed = false;
+
 
     public SlidingWindowBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -199,7 +201,7 @@ public class SlidingWindowBlockEntity extends SmartBlockEntity implements IHaveG
         SlidingWindowBlock slidingWindowBlock = (SlidingWindowBlock) block.getBlock();
         boolean open = openObj instanceof Boolean ? (Boolean) openObj : isOpen(getBlockState());
         if (open != isOpen(getBlockState())) {
-            slidingWindowBlock.toggle(block, level, worldPosition, null, null, open);
+            slidingWindowBlock.toggle(block, level, worldPosition, null, open);
         }
         boolean wasSettled = animation.settled();
         animation.chase(open ? 1 : 0, .15f, LerpedFloat.Chaser.LINEAR);
@@ -241,6 +243,16 @@ public class SlidingWindowBlockEntity extends SmartBlockEntity implements IHaveG
         if (mode != null) {
             selectionMode.setValue(mode.ordinal());
         }
+    }
+
+
+
+    public boolean isManuallyClosed() {
+        return manuallyClosed;
+    }
+
+    public void setManuallyClosed(boolean manuallyClosed) {
+        this.manuallyClosed = manuallyClosed;
     }
 
     public enum SelectionMode implements INamedIconOptions, StringRepresentable {

@@ -43,13 +43,22 @@ public class StepMovingInteraction extends SimpleBlockMovingInteraction {
         if (connected == TrainStepBlock.ConnectedState.BOTH) {
             BlockPos leftPos = pos.relative(facing.getClockWise());
             BlockPos rightPos = pos.relative(facing.getCounterClockWise());
-            BlockState leftState = contraption.getBlocks()
-                    .get(leftPos).state();
-            BlockState rightState = contraption.getBlocks()
-                    .get(rightPos).state();
+            BlockState leftState;
+            BlockState rightState;
             StructureTemplate.StructureBlockInfo leftInfo = contraption.getBlocks()
                     .get(leftPos);
-            StructureTemplate.StructureBlockInfo rightInfo = contraption.getBlocks().get(rightPos);
+            StructureTemplate.StructureBlockInfo rightInfo = contraption.getBlocks()
+                    .get(rightPos);
+            try {
+                leftState = leftInfo.state();;
+            } catch (NullPointerException e) {
+                leftState = null;
+            }
+            try {
+                rightState = rightInfo.state();
+            } catch (NullPointerException e) {
+                rightState = null;
+            }
             if (leftInfo != null && leftInfo.state().getValue(CONNECTED) != TrainStepBlock.ConnectedState.NONE && !ignore.equals("left")) {
 //                handlePlayerInteraction(null, InteractionHand.MAIN_HAND, leftPos, contraption.entity);
                 toggleStep(leftState, leftPos, "right", open, contraption);
