@@ -1,6 +1,7 @@
 package com.tiestoettoet.create_train_parts;
 
 import com.simibubi.create.AllCreativeModeTabs;
+import com.simibubi.create.Create;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
@@ -23,6 +24,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 //import static com.tiestoettoet.create_train_parts.AllBlocks.REGISTRATE;
@@ -59,10 +61,15 @@ public class CreateTrainParts {
         AllBlockEntityTypes.register();
 
         modEventBus.addListener(CreateTrainParts::commonSetup);
+        modEventBus.addListener(CreateTrainParts::onRegister);
 
         // NeoForge.EVENT_BUS.register(this);
 
         ModItems.register(modEventBus);
+    }
+
+    public static void onRegister(final RegisterEvent event) {
+        AllContraptionTypes.init();
     }
 
     public static CreateRegistrate registrate() {
@@ -88,7 +95,7 @@ public class CreateTrainParts {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             // Some client setup code
-            LOGGER.info("create_enchantment_industry_plus is starting up on the client side!");
+            LOGGER.info("create_train_parts is starting up on the client side!");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
     }

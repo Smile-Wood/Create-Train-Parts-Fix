@@ -1,5 +1,7 @@
 package com.tiestoettoet.create_train_parts;
 
+import com.simibubi.create.AllPartialModels;
+import com.simibubi.create.content.kinetics.base.OrientedRotatingVisual;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.SlidingWindowBlockEntity;
 import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.SlidingWindowRenderer;
@@ -7,6 +9,7 @@ import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSl
 import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideRenderer;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlockEntity;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepRenderer;
+import com.tiestoettoet.create_train_parts.content.trains.crossing.*;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
 public class AllBlockEntityTypes {
@@ -29,6 +32,18 @@ public class AllBlockEntityTypes {
             REGISTRATE.blockEntity("sliding_window", SlidingWindowBlockEntity::new)
                     .renderer(() -> SlidingWindowRenderer::new)
                     .validBlocks(AllBlocks.GLASS_SLIDING_WINDOW, AllBlocks.ANDESITE_SLIDING_WINDOW, AllBlocks.BRASS_SLIDING_WINDOW, AllBlocks.COPPER_SLIDING_WINDOW, AllBlocks.TRAIN_SLIDING_WINDOW)
+                    .register();
+
+    public static final BlockEntityEntry<CrossingBlockEntity> CROSSING =
+            REGISTRATE.blockEntity("crossing", CrossingBlockEntity::new)
+//                    .visual(() -> CrossingVisual::new, false)
+                    .validBlocks(AllBlocks.CROSSING)
+                    .renderer(() -> CrossingRenderer::new)
+                    .register();
+    public static final BlockEntityEntry<ArmExtenderBlockEntity> ARM_EXTENDER =
+            REGISTRATE.blockEntity("arm_extender", ArmExtenderBlockEntity::new)
+                    .validBlocks(AllBlocks.ARM_EXTENDER)
+                    .renderer(() -> ArmExtenderRenderer::new)
                     .register();
 
     public static void register() {
