@@ -13,6 +13,7 @@ import net.minecraft.world.level.material.MapColor;
 import com.simibubi.create.AllCreativeModeTabs;
 
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
+import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 
 public class AllBlocks {
     private static final CreateRegistrate REGISTRATE = CreateTrainParts.registrate();
@@ -36,6 +37,7 @@ public class AllBlocks {
     public static final BlockEntry<TrainStepBlock> TRAIN_STEP_TRAIN = REGISTRATE.block("train_step_train", TrainStepBlock::new)
             .properties(p -> p.mapColor(MapColor.PODZOL)
                     .sound(SoundType.NETHERITE_BLOCK))
+
             .transform(BuilderTransformers.trainStep("train",
                     () -> com.simibubi.create.AllSpriteShifts.RAILWAY_CASING_SIDE,
                     () -> com.simibubi.create.AllSpriteShifts.RAILWAY_CASING))

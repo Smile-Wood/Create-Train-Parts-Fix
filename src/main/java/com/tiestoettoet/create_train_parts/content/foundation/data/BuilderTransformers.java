@@ -8,6 +8,7 @@ import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 import com.simibubi.create.foundation.data.AssetLookup;
 import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 
+import com.simibubi.create.foundation.data.SharedProperties;
 import com.tiestoettoet.create_train_parts.content.contraptions.behaviour.SlideMovingInteraction;
 import com.tiestoettoet.create_train_parts.content.contraptions.behaviour.StepMovingInteraction;
 import com.tiestoettoet.create_train_parts.content.contraptions.behaviour.WindowMovingInteraction;
@@ -24,9 +25,11 @@ import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainSte
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepMovementBehaviour;
 import com.tiestoettoet.create_train_parts.content.foundation.block.connected.HorizontalCTBehaviour;
 import com.tterrag.registrate.builders.BlockBuilder;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.level.block.SoundType;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 import javax.annotation.Nullable;
@@ -36,6 +39,7 @@ import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movem
 import static com.simibubi.create.foundation.data.CreateRegistrate.casingConnectivity;
 import static com.simibubi.create.foundation.data.CreateRegistrate.connectedTextures;
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
+import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 
 public class BuilderTransformers {
@@ -44,17 +48,15 @@ public class BuilderTransformers {
     }
 
     public static <B extends TrainStepBlock, P> NonNullUnaryOperator<BlockBuilder<B, P>> trainStep(String type, Supplier<CTSpriteShiftEntry> ct, @Nullable Supplier<CTSpriteShiftEntry> ct2) {
-        return b -> b.initialProperties(() -> Blocks.IRON_DOOR)
-                .properties(p -> p.requiresCorrectToolForDrops()
-                        .strength(3.0F, 6.0F))
+        return b -> b.initialProperties(SharedProperties::stone)
+                .properties(p -> p.sound(SoundType.WOOD))
+                .transform(axeOrPickaxe())
                 .blockstate(new TrainStepGenerator(type)::generate)
                 .addLayer(() -> RenderType::cutoutMipped)
-                .transform(pickaxeOnly())
                 .onRegister(connectedTextures(() -> ct2 != null ? new HorizontalCTBehaviour(ct.get(), ct2.get()) : new EncasedCTBehaviour(ct.get())))
                 .onRegister(casingConnectivity((block, cc) -> cc.makeCasing(block, ct.get())))
                 .onRegister(interactionBehaviour(new StepMovingInteraction()))
                 .onRegister(movementBehaviour(new TrainStepMovementBehaviour()))
-                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
                 .item()
                 .tag(AllTags.AllItemTags.CONTRAPTION_CONTROLLED.tag)
 //        .transform(customItemModel())
@@ -67,12 +69,11 @@ public class BuilderTransformers {
     }
 
     public static <B extends TrainSlideBlock, P>NonNullUnaryOperator<BlockBuilder<B, P>> trainSlide(String type, Supplier<CTSpriteShiftEntry> ct, @Nullable Supplier<CTSpriteShiftEntry> ct2) {
-        return b -> b.initialProperties(() -> Blocks.IRON_DOOR)
-                .properties(p -> p.requiresCorrectToolForDrops()
-                        .strength(3.0F, 6.0F))
+        return b -> b.initialProperties(SharedProperties::stone)
+                .properties(p -> p.sound(SoundType.WOOD))
+                .transform(axeOrPickaxe())
                 .blockstate(new TrainSlideGenerator(type)::generate)
                 .addLayer(() -> RenderType::cutoutMipped)
-                .transform(pickaxeOnly())
                 .onRegister(connectedTextures(() -> ct2 != null ? new HorizontalCTBehaviour(ct.get(), ct2.get()) : new EncasedCTBehaviour(ct.get())))
                 .onRegister(casingConnectivity((block, cc) -> cc.makeCasing(block, ct.get())))
                 .onRegister(interactionBehaviour(new SlideMovingInteraction()))
@@ -85,12 +86,10 @@ public class BuilderTransformers {
     }
 
     public static <B extends SlidingWindowBlock, P>NonNullUnaryOperator<BlockBuilder<B, P>> slidingWindow(String type, Supplier<CTSpriteShiftEntry> ct) {
-        return b -> b.initialProperties(() -> Blocks.IRON_DOOR)
-                .properties(p -> p.requiresCorrectToolForDrops()
-                        .strength(3.0F, 6.0F))
+        return b -> b.initialProperties(SharedProperties::stone)
+                .properties(p -> p.sound(SoundType.WOOD))
+                .transform(axeOrPickaxe())
                 .blockstate(new SlidingWindowGenerator(type)::generate)
-
-                .transform(pickaxeOnly())
                 .onRegister(connectedTextures(() -> new SlidingWindowCTBehaviour(ct.get())))
                 .onRegister(interactionBehaviour(new WindowMovingInteraction()))
                 .onRegister(movementBehaviour(new SlidingWindowMovementBehaviour()))

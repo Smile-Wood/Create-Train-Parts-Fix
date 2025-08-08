@@ -7,8 +7,11 @@ import com.simibubi.create.foundation.item.TooltipModifier;
 import com.tiestoettoet.create_train_parts.item.ModItems;
 import com.mojang.logging.LogUtils;
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.tterrag.registrate.providers.ProviderType;
 import net.createmod.catnip.lang.FontHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -23,6 +26,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 //import static com.tiestoettoet.create_train_parts.AllBlocks.REGISTRATE;
@@ -35,10 +39,13 @@ public class CreateTrainParts {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static CreateRegistrate registrate;
 
-    private static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MOD_ID)
-            .defaultCreativeTab((ResourceKey<CreativeModeTab>) null)
-            .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-                    .andThen(TooltipModifier.mapNull(KineticStats.create(item))));
+    private static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MOD_ID);
+
+    static {
+        REGISTRATE.defaultCreativeTab((ResourceKey<CreativeModeTab>) null)
+                .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
+                        .andThen(TooltipModifier.mapNull(KineticStats.create(item))));
+    }
 
     public CreateTrainParts(IEventBus modEventBus, ModContainer modContainer) {
         onCtor(modEventBus, modContainer);
@@ -58,7 +65,7 @@ public class CreateTrainParts {
 
         AllBlockEntityTypes.register();
 
-        modEventBus.addListener(CreateTrainParts::commonSetup);
+        modEventBus.addListener(CreateTrainParts::onRegister);
 
         // NeoForge.EVENT_BUS.register(this);
 
@@ -69,7 +76,7 @@ public class CreateTrainParts {
         return REGISTRATE;
     }
 
-    private static void commonSetup(final FMLCommonSetupEvent event) {
+    private static void onRegister(final RegisterEvent event) {
 
     }
 
@@ -88,7 +95,7 @@ public class CreateTrainParts {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             // Some client setup code
-            LOGGER.info("create_enchantment_industry_plus is starting up on the client side!");
+            LOGGER.info("create_train_parts is starting up on the client side!");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
     }
