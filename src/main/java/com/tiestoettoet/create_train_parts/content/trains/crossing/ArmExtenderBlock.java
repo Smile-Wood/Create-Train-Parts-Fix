@@ -43,7 +43,7 @@ import java.util.function.Predicate;
 
 import static com.simibubi.create.content.kinetics.base.HorizontalKineticBlock.HORIZONTAL_FACING;
 
-public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IBE<ArmExtenderBlockEntity>, IWrenchable {
+public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IWrenchable {
     private static final int placementHelperId = PlacementHelpers.register(PlacementHelper.get());
 
     public static final BooleanProperty FLIPPED = BooleanProperty.create("flipped");
@@ -107,7 +107,7 @@ public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IBE<
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+        return RenderShape.MODEL;
         // RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
@@ -116,15 +116,15 @@ public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IBE<
         return false;
     }
 
-    @Override
-    public Class<ArmExtenderBlockEntity> getBlockEntityClass() {
-        return ArmExtenderBlockEntity.class;
-    }
-
-    @Override
-    public BlockEntityType<? extends ArmExtenderBlockEntity> getBlockEntityType() {
-        return AllBlockEntityTypes.ARM_EXTENDER.get();
-    }
+//    @Override
+//    public Class<ArmExtenderBlockEntity> getBlockEntityClass() {
+//        return ArmExtenderBlockEntity.class;
+//    }
+//
+//    @Override
+//    public BlockEntityType<? extends ArmExtenderBlockEntity> getBlockEntityType() {
+//        return AllBlockEntityTypes.ARM_EXTENDER.get();
+//    }
 
     @MethodsReturnNonnullByDefault
     public static class PlacementHelper extends ArmHelper<Direction> {

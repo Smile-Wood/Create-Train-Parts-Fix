@@ -159,6 +159,13 @@ public class CrossingBlockEntity extends KineticBlockEntity implements IControlC
         } catch (AssemblyException e) {
             throw new RuntimeException(e);
         }
+
+        if (movedContraption == null)
+            return;
+
+        System.out.println("contraption: " + movedContraption);
+        System.out.println("animation value: " + animation.getValue());
+        System.out.println(movedContraption.getBoundingBox());
 //        System.out.println(blocks);
         movedContraption.setAngle((float) (1.56 * animation.getValue()));
 //
