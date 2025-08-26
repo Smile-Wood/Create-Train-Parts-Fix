@@ -18,4 +18,4 @@
 </ul>
 
 <h1></h1>
-<h4 align="center">Find out more about Create on our <a href="https://www.curseforge.com/minecraft/mc-mods/create-train-parts">Curseforge</a> or <a href="https://modrinth.com/mod/create-train-parts">Modrinth</a> Page</h4>
+<h4 align="center">Find out more about Create Train Parts on <a href="https://www.curseforge.com/minecraft/mc-mods/create-train-parts">Curseforge</a> or <a href="https://modrinth.com/mod/create-train-parts">Modrinth</a> Page</h4>
