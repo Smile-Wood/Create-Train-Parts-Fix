@@ -1,6 +1,7 @@
 package com.tiestoettoet.create_train_parts;
 
 import com.simibubi.create.AllCreativeModeTabs;
+import com.simibubi.create.Create;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
@@ -65,11 +66,16 @@ public class CreateTrainParts {
 
         AllBlockEntityTypes.register();
 
+        modEventBus.addListener(CreateTrainParts::commonSetup);
         modEventBus.addListener(CreateTrainParts::onRegister);
 
         // NeoForge.EVENT_BUS.register(this);
 
         ModItems.register(modEventBus);
+    }
+
+    public static void onRegister(final RegisterEvent event) {
+        AllContraptionTypes.init();
     }
 
     public static CreateRegistrate registrate() {

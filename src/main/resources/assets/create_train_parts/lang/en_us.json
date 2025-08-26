@@ -12,6 +12,8 @@
   "block.create_train_parts.brass_sliding_window": "Brass Window",
   "block.create_train_parts.copper_sliding_window": "Copper Window",
   "block.create_train_parts.train_sliding_window": "Train Window",
+  "block.create_train_parts.crossing": "Crossing Gate",
+  "block.create_train_parts.arm_extender": "Arm Extender",
 
   "create_train_parts.ponder.train_assembly.header": "Train Step and Slide",
   "create_train_parts.ponder.train_assembly.text_1": "Sometimes the Train is too far away from the Station to enter the Train",

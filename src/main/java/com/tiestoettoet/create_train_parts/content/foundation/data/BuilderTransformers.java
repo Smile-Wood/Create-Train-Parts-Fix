@@ -24,12 +24,15 @@ import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainSte
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepGenerator;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepMovementBehaviour;
 import com.tiestoettoet.create_train_parts.content.foundation.block.connected.HorizontalCTBehaviour;
+import com.tiestoettoet.create_train_parts.content.trains.crossing.ArmExtenderBlock;
+import com.tiestoettoet.create_train_parts.content.trains.crossing.CrossingBlock;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 import javax.annotation.Nullable;
@@ -41,6 +44,7 @@ import static com.simibubi.create.foundation.data.CreateRegistrate.connectedText
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
+import static com.simibubi.create.foundation.data.TagGen.*;
 
 public class BuilderTransformers {
     public static <B extends TrainStepBlock, P>NonNullUnaryOperator<BlockBuilder<B, P>> trainStep(String type, Supplier<CTSpriteShiftEntry> ct) {
@@ -78,7 +82,7 @@ public class BuilderTransformers {
                 .onRegister(casingConnectivity((block, cc) -> cc.makeCasing(block, ct.get())))
                 .onRegister(interactionBehaviour(new SlideMovingInteraction()))
                 .onRegister(movementBehaviour(new TrainSlideMovementBehaviour()))
-                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
+//                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
                 .item()
                 .tag(AllTags.AllItemTags.CONTRAPTION_CONTROLLED.tag)
                 .model(AssetLookup.customBlockItemModel("train_slide_" + type, "slide"))
@@ -93,11 +97,35 @@ public class BuilderTransformers {
                 .onRegister(connectedTextures(() -> new SlidingWindowCTBehaviour(ct.get())))
                 .onRegister(interactionBehaviour(new WindowMovingInteraction()))
                 .onRegister(movementBehaviour(new SlidingWindowMovementBehaviour()))
-                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
+//                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
                 .addLayer(() -> RenderType::cutoutMipped)
                 .item()
                 .tag(AllTags.AllItemTags.CONTRAPTION_CONTROLLED.tag)
                 .model(AssetLookup.customBlockItemModel("sliding_windows", type))
+                .build();
+    }
+
+    public static <B extends CrossingBlock, P>NonNullUnaryOperator<BlockBuilder<B, P>> crossing() {
+        return b -> b.initialProperties(SharedProperties::softMetal)
+                .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
+                .properties(p -> p.sound(SoundType.NETHERITE_BLOCK))
+                .transform(axeOnly())
+//                .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
+                .addLayer(() -> RenderType::cutoutMipped)
+//                .addLayer(() -> RenderType::translucent)
+                .item()
+                .model(AssetLookup.customBlockItemModel("crossing", "item"))
+                .build();
+    }
+
+    public static <B extends ArmExtenderBlock, P>NonNullUnaryOperator<BlockBuilder<B, P>> armExtender() {
+        return b -> b.initialProperties(SharedProperties::softMetal)
+                .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
+                .properties(p -> p.sound(SoundType.NETHERITE_BLOCK))
+                .transform(axeOnly())
+                .addLayer(() -> RenderType::cutoutMipped)
+                .item()
+                .model(AssetLookup.customBlockItemModel("crossing", "arm_item"))
                 .build();
     }
 
