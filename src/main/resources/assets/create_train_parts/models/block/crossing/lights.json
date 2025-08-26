@@ -1,8 +1,7 @@
 {
-	"format_version": "1.9.0",
-	"credit": "By Slimeist",
+	"render_type": "minecraft:translucent",
 	"textures": {
-		"5": "create_train_parts:block/crossing/lights",
+		"0": "create_train_parts:block/crossing/lights",
 		"particle": "create:block/girder"
 	},
 	"elements": [
@@ -12,12 +11,12 @@
 			"to": [9, 21, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 9.75, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 1, 2], "texture": "#5"},
-				"east": {"uv": [0, 0, 2, 2], "texture": "#5"},
-				"south": {"uv": [0, 0, 1, 2], "texture": "#5"},
-				"west": {"uv": [0, 0, 2, 2], "texture": "#5"},
-				"up": {"uv": [0, 0, 1, 2], "texture": "#5"},
-				"down": {"uv": [0, 0, 1, 2], "texture": "#5"}
+				"north": {"uv": [0, 0, 1, 2], "texture": "#0"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"south": {"uv": [0, 0, 1, 2], "texture": "#0"},
+				"west": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"up": {"uv": [0, 0, 1, 2], "texture": "#0"},
+				"down": {"uv": [0, 0, 1, 2], "texture": "#0"}
 			}
 		},
 		{
@@ -26,12 +25,12 @@
 			"to": [9, 16, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 9.75, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 1, 2], "texture": "#5"},
-				"east": {"uv": [0, 0, 2, 2], "texture": "#5"},
-				"south": {"uv": [0, 0, 1, 2], "texture": "#5"},
-				"west": {"uv": [0, 0, 2, 2], "texture": "#5"},
-				"up": {"uv": [0, 0, 1, 2], "texture": "#5"},
-				"down": {"uv": [0, 0, 1, 2], "texture": "#5"}
+				"north": {"uv": [0, 0, 1, 2], "texture": "#0"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"south": {"uv": [0, 0, 1, 2], "texture": "#0"},
+				"west": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"up": {"uv": [0, 0, 1, 2], "texture": "#0"},
+				"down": {"uv": [0, 0, 1, 2], "texture": "#0"}
 			}
 		}
 	]

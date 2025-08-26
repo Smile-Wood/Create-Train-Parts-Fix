@@ -1,8 +1,7 @@
 {
-	"format_version": "1.21.6",
-	"credit": "By Slimeist",
+	"render_type": "minecraft:cutout_mipped",
 	"textures": {
-		"5": "create_train_parts:block/crossing/arm",
+		"0": "create_train_parts:block/crossing/arm",
 		"particle": "create:block/girder"
 	},
 	"elements": [
@@ -11,12 +10,12 @@
 			"to": [16, 16, 13],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 14, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 8, 2], "texture": "#5"},
-				"east": {"uv": [0, 0, 1, 2], "texture": "#5"},
-				"south": {"uv": [0, 0, 8, 2], "rotation": 180, "texture": "#5"},
-				"west": {"uv": [7, 0, 8, 2], "texture": "#5"},
-				"up": {"uv": [8, 1, 0, 0], "texture": "#5"},
-				"down": {"uv": [0, 1, 8, 0], "rotation": 180, "texture": "#5"}
+				"north": {"uv": [0, 0, 8, 2], "texture": "#0"},
+				"east": {"uv": [0, 0, 1, 2], "texture": "#0"},
+				"south": {"uv": [0, 0, 8, 2], "rotation": 180, "texture": "#0"},
+				"west": {"uv": [7, 0, 8, 2], "texture": "#0"},
+				"up": {"uv": [8, 1, 0, 0], "texture": "#0"},
+				"down": {"uv": [0, 1, 8, 0], "rotation": 180, "texture": "#0"}
 			}
 		}
 	],

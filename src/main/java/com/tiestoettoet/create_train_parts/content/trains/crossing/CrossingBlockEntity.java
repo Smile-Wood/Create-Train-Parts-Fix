@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -40,8 +41,8 @@ public class CrossingBlockEntity extends KineticBlockEntity implements IControlC
     protected boolean assembleNextTick;
 
     public ControlledContraptionEntity movedContraption;
-//    boolean deferUpdate;
-//    Map<String, BlockState> neighborStates = new HashMap<>();
+    // boolean deferUpdate;
+    // Map<String, BlockState> neighborStates = new HashMap<>();
 
     protected AssemblyException lastException;
     Object openObj = null;
@@ -63,18 +64,27 @@ public class CrossingBlockEntity extends KineticBlockEntity implements IControlC
             openObj = tag.getBoolean("ForceOpen");
     }
 
-    public void assemble() throws AssemblyException {
+    public void assemble() {
+        System.out.println("CrossingBlockEntity.assemble() called");
         if (!(level.getBlockState(worldPosition)
                 .getBlock() instanceof CrossingBlock))
             return;
 
         Direction direction = getBlockState().getValue(HORIZONTAL_FACING);
         CrossingContraption contraption = new CrossingContraption(direction);
-//        System.out.println(contraption.assemble(level, worldPosition));
-        if (!contraption.assemble(level, worldPosition))
+        System.out.println("Created CrossingContraption with direction: " + direction);
+        try {
+            boolean assembleResult = contraption.assemble(level, worldPosition);
+            System.out.println("Contraption assemble result: " + assembleResult);
+            if (!assembleResult)
+                return;
+            lastException = null;
+        } catch (AssemblyException e) {
+            System.out.println("Assembly exception: " + e.getMessage());
+            lastException = e;
+            sendData();
             return;
-
-
+        }
 
         contraption.removeBlocksFromWorld(level, BlockPos.ZERO);
         movedContraption = ControlledContraptionEntity.create(level, this, contraption);
@@ -83,7 +93,7 @@ public class CrossingBlockEntity extends KineticBlockEntity implements IControlC
         movedContraption.setRotationAxis(direction.getAxis());
         level.addFreshEntity(movedContraption);
 
-//        System.out.println(movedContraption);
+        // System.out.println(movedContraption);
 
         AllSoundEvents.CONTRAPTION_ASSEMBLE.playOnServer(level, worldPosition);
 
@@ -96,11 +106,14 @@ public class CrossingBlockEntity extends KineticBlockEntity implements IControlC
     }
 
     public void disassemble() {
+        System.out.println(
+                "Disassemble called - running: " + running + ", movedContraption: " + (movedContraption != null));
         if (!running && movedContraption == null)
             return;
         angle = 0;
         sequencedAngleLimit = -1;
         if (movedContraption != null) {
+            System.out.println("Disassembling contraption");
             movedContraption.disassemble();
             AllSoundEvents.CONTRAPTION_DISASSEMBLE.playOnServer(level, worldPosition);
         }
@@ -115,28 +128,19 @@ public class CrossingBlockEntity extends KineticBlockEntity implements IControlC
     public void tick() {
         super.tick();
         BlockState block = getBlockState();
-        CrossingBlock crossingBlock = (CrossingBlock) block.getBlock();
         boolean open = isOpen(getBlockState());
-//        if (open != isOpen(getBlockState())) {
-//            block = block.setValue(OPEN, !open);
-//            level.setBlock(worldPosition, block, 10);
-//            level.gameEvent(null, block.getValue(OPEN) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, worldPosition);
-//            level.sendBlockUpdated(worldPosition, block, block, 3);
-//        }
-        boolean wasSettled = animation.settled();
-        BlockEntity below = level.getBlockEntity(worldPosition.below());
-        float speed = 0;
-        if (below instanceof KineticBlockEntity kbe) {
-            speed = getSpeed();
-        }
 
-//        System.out.println("Speed: " + speed);
-        boolean shouldOpen = speed < 0;
+        // Get speed from the kinetic network (this block receives power)
+        float speed = Math.abs(getSpeed());
+        boolean shouldOpen = getSpeed() < 0;
+
         if (speed < 0) {
             speed = -speed;
         }
         speed = speed / 50f * 0.05f;
-        animation.chase(shouldOpen ? 0 : 1, speed, LerpedFloat.Chaser.LINEAR);
+
+        float targetValue = shouldOpen ? 0 : 1;
+        animation.chase(targetValue, speed, LerpedFloat.Chaser.LINEAR);
         animation.tickChaser();
 
         if (level.isClientSide()) {
@@ -147,37 +151,80 @@ public class CrossingBlockEntity extends KineticBlockEntity implements IControlC
         }
 
         if (animation.settled() && open == (animation.getValue() != 0)) {
-//            disassemble();
             return;
         }
 
         block = block.setValue(OPEN, animation.getValue() != 0);
         level.setBlock(worldPosition, block, 10);
 
-        try {
-            assemble();
-        } catch (AssemblyException e) {
-            throw new RuntimeException(e);
+        if (!level.isClientSide) {
+            assembleNextTick = false;
+            if (running) {
+                // Disassemble when speed is 0 OR when animation reaches the "closed" state
+                // For shouldOpen=true (negative speed), closed is when animation < 0.1
+                // For shouldOpen=false (positive speed), closed is when animation > 0.9 (since
+                // target is 1)
+                // boolean isInClosedState = shouldOpen ?
+                // (animation.settled() && animation.getValue() < 0.1f) :
+                // (animation.settled() && animation.getValue() > 0.9f);
+
+                if (animation.getValue() == 0) {
+                    System.out.println("Disassembling: speed=" + speed + ", shouldOpen=" + shouldOpen + ", animValue="
+                            + animation.getValue() + ", settled=" + animation.settled());
+                    if (movedContraption != null)
+                        movedContraption.getContraption()
+                                .stop(level);
+                    disassemble();
+                    return;
+                }
+            } else {
+                if (speed == 0) {
+                    return;
+                }
+                // Only assemble when we have speed AND animation is not in closed position
+                boolean isInClosedState = shouldOpen ? (animation.settled() && animation.getValue() < 0.1f)
+                        : (animation.settled() && animation.getValue() > 0.9f);
+
+                if (!isInClosedState) {
+                    System.out.println("Assembling: speed=" + speed + ", shouldOpen=" + shouldOpen + ", animValue="
+                            + animation.getValue() + ", settled=" + animation.settled());
+                    assemble();
+                }
+            }
         }
 
         if (movedContraption == null)
             return;
 
-        System.out.println("contraption: " + movedContraption);
-        System.out.println("animation value: " + animation.getValue());
-        System.out.println(movedContraption.getBoundingBox());
-//        System.out.println(blocks);
-        movedContraption.setAngle((float) (1.56 * animation.getValue()));
-//
-        // Update connected ArmExtenderBlocks
-//        updateConnectedArmExtenders(animation.getChaseTarget(), speed);
-        // System.out.println("Animation value: " + animation.getValue());
-        // System.out.println("Bridge ticks: " + bridgeTicks);
+        // Apply the same smooth animation curve as in the renderer
+        float rawValue = animation.getValue();
+        float smoothValue = 0.5f * (1 - Mth.cos(Mth.PI * rawValue));
 
+        // Convert radians to degrees: 1.56 radians ≈ 89.4 degrees (roughly 90 degrees)
+        float angleInRadians = (float) (1.56 * smoothValue);
+        float angleInDegrees = (float) Math.toDegrees(angleInRadians);
+
+        // Apply direction-specific angle signs
+        Direction facing = getBlockState().getValue(HORIZONTAL_FACING);
+        float finalAngle;
+        switch (facing) {
+            case EAST:
+            case SOUTH:
+                // East and South need negative angles
+                finalAngle = -angleInDegrees;
+                break;
+            case NORTH:
+            case WEST:
+                // North and West need positive angles
+                finalAngle = angleInDegrees;
+                break;
+            default:
+                finalAngle = -angleInDegrees; // fallback
+                break;
+        }
+
+        movedContraption.setAngle(finalAngle);
     }
-
-
-
 
     @Override
     protected AABB createRenderBoundingBox() {

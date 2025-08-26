@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FF"
+  ],
+  "key": {
+    "F": {
+      "tag": "minecraft:fences"
+    }
+  },
+  "result": {
+    "item": "create_train_parts:arm_extender",
+    "count": 4
+  }
+}

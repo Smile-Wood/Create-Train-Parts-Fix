@@ -66,7 +66,33 @@ public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IWre
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter getter, BlockPos pos, CollisionContext context) {
-        return Block.box(0, 0, 0, 16, 16, 16);
+        Direction facing = state.getValue(HORIZONTAL_FACING);
+        boolean flipped = state.getValue(FLIPPED);
+
+        // Base shape from JSON: arm extends from y=6 to y=10 (height 4), z=0 to z=16
+        // (full depth)
+        // Normal (not flipped): x=11 to x=13 (width 2)
+        // Flipped: x=3 to x=5 (width 2)
+
+        VoxelShape baseShape;
+        if (flipped) {
+            // Flipped version: x=3 to x=5
+            baseShape = Block.box(3, 6, 0, 5, 10, 16);
+        } else {
+            // Normal version: x=11 to x=13
+            baseShape = Block.box(11, 6, 0, 13, 10, 16);
+        }
+
+        // Rotate the shape based on the facing direction
+        // The JSON models are oriented for west facing (y=0), so we need to rotate
+        // accordingly
+        return switch (facing) {
+            case NORTH -> flipped ? Block.box(0, 6, 3, 16, 10, 5) : Block.box(0, 6, 11, 16, 10, 13);
+            case SOUTH -> flipped ? Block.box(0, 6, 11, 16, 10, 13) : Block.box(0, 6, 3, 16, 10, 5);
+            case EAST -> flipped ? Block.box(11, 6, 0, 13, 10, 16) : Block.box(3, 6, 0, 5, 10, 16);
+            case WEST -> flipped ? Block.box(3, 6, 0, 5, 10, 16) : Block.box(11, 6, 0, 13, 10, 16);
+            default -> baseShape;
+        };
     }
 
     @Override
@@ -83,10 +109,12 @@ public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IWre
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hitResult) {
         IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
         if (placementHelper.matchesItem(stack) && !player.isShiftKeyDown())
-            return placementHelper.getOffset(player, level, state, pos, hitResult).placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);
+            return placementHelper.getOffset(player, level, state, pos, hitResult).placeInWorld(level,
+                    (BlockItem) stack.getItem(), player, hand, hitResult);
 
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
@@ -101,7 +129,8 @@ public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IWre
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState, LevelAccessor world, BlockPos pos, BlockPos neighbourPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState, LevelAccessor world,
+            BlockPos pos, BlockPos neighbourPos) {
         return state;
     }
 
@@ -116,15 +145,16 @@ public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IWre
         return false;
     }
 
-//    @Override
-//    public Class<ArmExtenderBlockEntity> getBlockEntityClass() {
-//        return ArmExtenderBlockEntity.class;
-//    }
-//
-//    @Override
-//    public BlockEntityType<? extends ArmExtenderBlockEntity> getBlockEntityType() {
-//        return AllBlockEntityTypes.ARM_EXTENDER.get();
-//    }
+    // @Override
+    // public Class<ArmExtenderBlockEntity> getBlockEntityClass() {
+    // return ArmExtenderBlockEntity.class;
+    // }
+    //
+    // @Override
+    // public BlockEntityType<? extends ArmExtenderBlockEntity> getBlockEntityType()
+    // {
+    // return AllBlockEntityTypes.ARM_EXTENDER.get();
+    // }
 
     @MethodsReturnNonnullByDefault
     public static class PlacementHelper extends ArmHelper<Direction> {
@@ -139,8 +169,7 @@ public class ArmExtenderBlock extends HorizontalDirectionalBlock implements IWre
             super(
                     AllBlocks.ARM_EXTENDER::has,
                     state -> state.getValue(HORIZONTAL_FACING).getClockWise().getAxis(),
-                    HORIZONTAL_FACING
-            );
+                    HORIZONTAL_FACING);
         }
 
         @Override

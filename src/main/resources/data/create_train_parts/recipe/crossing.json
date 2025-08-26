@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [" C ", "FCT", " S "],
+  "key": {
+    "C": {
+      "item": "create:andesite_casing"
+    },
+    "T": {
+      "item": "create:electron_tube"
+    },
+    "F": {
+      "tag": "minecraft:fences"
+    },
+    "S": {
+      "tag": "forge:plates/iron"
+    }
+  },
+  "result": {
+    "item": "create_train_parts:crossing",
+    "count": 1
+  }
+}

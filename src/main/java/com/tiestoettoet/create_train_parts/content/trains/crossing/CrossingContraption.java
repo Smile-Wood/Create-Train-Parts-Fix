@@ -1,13 +1,10 @@
 package com.tiestoettoet.create_train_parts.content.trains.crossing;
 
-import com.simibubi.create.AllTags;
 import com.simibubi.create.api.contraption.ContraptionType;
 import com.simibubi.create.content.contraptions.AssemblyException;
 import com.simibubi.create.content.contraptions.Contraption;
-import com.simibubi.create.content.contraptions.piston.MechanicalPistonBlock;
-import com.simibubi.create.content.contraptions.piston.PistonExtensionPoleBlock;
+import com.tiestoettoet.create_train_parts.AllBlocks;
 import com.tiestoettoet.create_train_parts.AllContraptionTypes;
-import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -15,23 +12,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.PistonType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
-import static com.simibubi.create.AllBlocks.MECHANICAL_PISTON_HEAD;
-import static com.simibubi.create.AllBlocks.PISTON_EXTENSION_POLE;
-import static com.simibubi.create.content.contraptions.piston.MechanicalPistonBlock.*;
-import static com.simibubi.create.content.contraptions.piston.MechanicalPistonBlock.isPistonHead;
-import static com.tiestoettoet.create_train_parts.content.trains.crossing.ArmExtenderBlock.isArm;
-import static com.tiestoettoet.create_train_parts.content.trains.crossing.CrossingBlock.isCrossing;
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 public class CrossingContraption extends Contraption {
     protected Direction facing;
@@ -40,25 +27,34 @@ public class CrossingContraption extends Contraption {
     }
 
     public CrossingContraption(Direction direction) {
-        facing = direction;
+        this.facing = direction;
     }
 
     @Override
     public boolean assemble(Level world, BlockPos pos) throws AssemblyException {
+        System.out.println("CrossingContraption.assemble() called at " + pos);
         anchor = pos;
-//        System.out.println(collectArms( world, pos, facing) ? "Arms collected" : "No arms found");
-//        System.out.println(blocks);
-        if (!collectArms(world, pos, facing))
-            return false;
-        if (!searchMovedStructure(world, pos.relative(facing), null))
-            return false;
-        expandBoundsAroundAxis(facing.getClockWise().getAxis());
-        if (blocks.isEmpty())
-            return false;
 
-        // Implement logic to collect all blocks (crossing + arms) into this contraption
-        // Use BFS/DFS to find connected ArmExtenderBlocks
-        // Add them with addBlock(world, pos, capture(world, pos));
+        // Use the standard searchMovedStructure which will discover connected blocks
+        // starting from the crossing block itself
+        boolean searchResult = searchMovedStructure(world, pos, null);
+        System.out.println("searchMovedStructure result: " + searchResult + ", blocks found: " + blocks.size());
+
+        if (!searchResult) {
+            System.out.println("Assembly failed: searchMovedStructure returned false");
+            return false;
+        }
+
+        if (facing != null) {
+            expandBoundsAroundAxis(facing.getClockWise().getAxis());
+        }
+
+        if (blocks.isEmpty()) {
+            System.out.println("Assembly failed: no blocks found");
+            return false;
+        }
+
+        System.out.println("Assembly successful with " + blocks.size() + " blocks");
         return true;
     }
 
@@ -70,11 +66,14 @@ public class CrossingContraption extends Contraption {
 
     @Override
     protected boolean isAnchoringBlockAt(BlockPos pos) {
-        return pos.equals(anchor.relative(facing.getOpposite()));
+        // The crossing block itself should be the anchor (stay in the world)
+        return pos.equals(anchor);
     }
 
     @Override
     public void addBlock(Level level, BlockPos pos, Pair<StructureTemplate.StructureBlockInfo, BlockEntity> capture) {
+        System.out.println("Adding block to contraption at " + pos + ": "
+                + capture.getLeft().state().getBlock().getClass().getSimpleName());
         super.addBlock(level, pos, capture);
     }
 
@@ -95,54 +94,73 @@ public class CrossingContraption extends Contraption {
         return facing;
     }
 
-    private boolean collectArms(Level world, BlockPos pos, Direction direction) {
-        if (bounds == null) {
-            bounds = new AABB(BlockPos.ZERO);
-        }
-        List<StructureTemplate.StructureBlockInfo> arms = new ArrayList<>();
+    @Override
+    protected boolean moveBlock(Level world, Direction forcedDirection, Queue<BlockPos> frontier, Set<BlockPos> visited)
+            throws AssemblyException {
+        BlockPos pos = frontier.peek();
+        if (pos == null)
+            return super.moveBlock(world, forcedDirection, frontier, visited);
+
         BlockState state = world.getBlockState(pos);
-        boolean flipped = state.getValue(CrossingBlock.FLIPPED);
-        BlockPos currentPos = pos.relative(flipped ? direction.getCounterClockWise() : direction.getClockWise());
-        BlockState currentState = world.getBlockState(currentPos);
+        System.out.println("Processing block at " + pos + ": " + state.getBlock().getClass().getSimpleName());
 
-        System.out.println(currentPos);
+        // Special handling for CrossingBlock - collect connected arm extenders
+        if (AllBlocks.CROSSING.has(state)) {
+            System.out.println("Found crossing block at " + pos);
+            // Get the crossing block's properties
+            boolean flipped = state.getValue(CrossingBlock.FLIPPED);
+            Direction crossingFacing = state.getValue(HORIZONTAL_FACING);
 
-        if (!isArm(currentState)) {
-            return false; // No arm found
+            // Calculate the direction to the first arm extender
+            Direction armDirection = crossingFacing.getClockWise();
+            BlockPos armPos = pos.relative(armDirection);
+
+            // Add connected arm extenders to the frontier if they haven't been visited
+            int armCount = 0;
+            while (world.getBlockState(armPos).getBlock() instanceof ArmExtenderBlock) {
+                if (!visited.contains(armPos)) {
+                    frontier.add(armPos);
+                    armCount++;
+                    System.out.println("Added arm extender " + armCount + " at " + armPos);
+                }
+                armPos = armPos.relative(armDirection);
+            }
+            System.out.println("Total arms found: " + armCount);
         }
 
-//        addBlock(world, pos, capture(world, pos));
+        // Special handling for ArmExtenderBlock - ensure they connect to adjacent arm
+        // extenders
+        if (state.getBlock() instanceof ArmExtenderBlock) {
+            System.out.println("Found arm extender at " + pos);
+            boolean flipped = state.getValue(ArmExtenderBlock.FLIPPED);
+            Direction armFacing = state.getValue(HORIZONTAL_FACING);
 
+            // Connect to the next arm extender in the chain
+            Direction chainDirection = flipped ? armFacing.getCounterClockWise() : armFacing.getClockWise();
+            BlockPos nextArmPos = pos.relative(chainDirection);
 
-        while (isArm(currentState)) {
-            arms.add(new StructureTemplate.StructureBlockInfo(
-                    currentPos.subtract(anchor), currentState, null
-            ));
-//            addBlock(world, currentPos, capture(world, currentPos));
-            currentPos = flipped ? currentPos.relative(direction.getCounterClockWise())
-                    : currentPos.relative(direction.getClockWise());
-            currentState = world.getBlockState(currentPos);
-            System.out.println(currentPos);
+            if (!visited.contains(nextArmPos)
+                    && world.getBlockState(nextArmPos).getBlock() instanceof ArmExtenderBlock) {
+                frontier.add(nextArmPos);
+                System.out.println("Connected to next arm at " + nextArmPos);
+            }
+
+            // Connect to the previous arm extender in the chain (but NOT back to crossing
+            // block)
+            BlockPos prevArmPos = pos.relative(chainDirection.getOpposite());
+            if (!visited.contains(prevArmPos)
+                    && world.getBlockState(prevArmPos).getBlock() instanceof ArmExtenderBlock) {
+                frontier.add(prevArmPos);
+                System.out.println("Connected to previous arm at " + prevArmPos);
+            }
         }
 
-        for (StructureTemplate.StructureBlockInfo arm : arms) {
-            BlockPos relPos = arm.pos();
-            BlockPos localPos = relPos.subtract(anchor);
-            getBlocks().put(localPos, new StructureTemplate.StructureBlockInfo(localPos, arm.state(), null));
-            //pistonExtensionCollisionBox = pistonExtensionCollisionBox.union(new AABB(localPos));
-        }
-
-
-        return true;
-
+        return super.moveBlock(world, forcedDirection, frontier, visited);
     }
-
-
 
     @Override
     public boolean canBeStabilized(Direction facing, BlockPos localPos) {
         return false;
     }
-
 
 }

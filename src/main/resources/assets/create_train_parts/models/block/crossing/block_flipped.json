@@ -1,6 +1,5 @@
 {
-	"format_version": "1.9.0",
-	"credit": "By Slimeist",
+	"render_type": "minecraft:cutout_mipped",
 	"textures": {
 		"0": "create:block/girder",
 		"3": "create:block/andesite_casing",

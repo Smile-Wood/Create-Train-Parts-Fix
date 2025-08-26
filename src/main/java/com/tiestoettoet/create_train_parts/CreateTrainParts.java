@@ -66,7 +66,7 @@ public class CreateTrainParts {
 
         AllBlockEntityTypes.register();
 
-        modEventBus.addListener(CreateTrainParts::commonSetup);
+//        modEventBus.addListener(CreateTrainParts::commonSetup);
         modEventBus.addListener(CreateTrainParts::onRegister);
 
         // NeoForge.EVENT_BUS.register(this);
@@ -80,10 +80,6 @@ public class CreateTrainParts {
 
     public static CreateRegistrate registrate() {
         return REGISTRATE;
-    }
-
-    private static void onRegister(final RegisterEvent event) {
-
     }
 
     public static ResourceLocation asResource(String path) {
