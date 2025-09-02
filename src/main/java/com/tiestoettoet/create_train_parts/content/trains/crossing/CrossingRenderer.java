@@ -127,7 +127,7 @@ public class CrossingRenderer extends KineticBlockEntityRenderer<CrossingBlockEn
 
 
 
-            if (value != 1) {
+            if (value != 1 && be.getSpeed() != 0) {
 
                 float movementMain = 8 / 16f;
                 float movementSecondary = 14 / 16f;

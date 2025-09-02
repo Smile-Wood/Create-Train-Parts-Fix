@@ -273,6 +273,46 @@ public class CrossingBlock extends HorizontalKineticBlock
     }
 
     @Override
+    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            // Block is being completely removed/replaced with a different block type
+            // Find and collect all connected arm extenders in all directions
+            java.util.List<ItemStack> armExtenderItems = new java.util.ArrayList<>();
+
+            for (Direction direction : Direction.Plane.HORIZONTAL) {
+                BlockPos armPos = pos.relative(direction);
+                while (world.getBlockState(armPos).getBlock() instanceof ArmExtenderBlock) {
+                    // Create the item stack for this arm extender
+                    armExtenderItems.add(new ItemStack(AllBlocks.ARM_EXTENDER.get()));
+                    // Remove the block without dropping items
+                    world.removeBlock(armPos, false);
+                    armPos = armPos.relative(direction);
+                }
+            }
+
+            // Try to find a player nearby to give the items to
+            if (!armExtenderItems.isEmpty() && !world.isClientSide) {
+                Player nearestPlayer = world.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 10.0, false);
+                if (nearestPlayer != null) {
+                    // Give items to the nearest player
+                    for (ItemStack item : armExtenderItems) {
+                        if (!nearestPlayer.addItem(item)) {
+                            // If inventory is full, drop the item
+                            Block.popResource(world, pos, item);
+                        }
+                    }
+                } else {
+                    // No player nearby, drop the items
+                    for (ItemStack item : armExtenderItems) {
+                        Block.popResource(world, pos, item);
+                    }
+                }
+            }
+        }
+        super.onRemove(state, world, pos, newState, isMoving);
+    }
+
+    @Override
     public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, world, pos, oldState, isMoving);
         BlockPos currentPos = pos.below();
