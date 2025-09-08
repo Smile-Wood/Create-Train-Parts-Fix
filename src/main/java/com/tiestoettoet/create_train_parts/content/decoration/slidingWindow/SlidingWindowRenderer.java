@@ -252,10 +252,6 @@ public class SlidingWindowRenderer  extends SafeBlockEntityRenderer<SlidingWindo
             float column = textureIndex % 8;
             float u = column / 8f;
             float v = row / 8f;
-
-//            u = u / 16f;
-//            v = v / 16f;
-
             partial_main.translate(moveOffset.x, upOffset.y, moveOffset.z)
                     .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                     .shiftUVtoSheet(spriteShift, u, v, 8)

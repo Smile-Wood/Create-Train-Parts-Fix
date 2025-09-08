@@ -1,6 +1,7 @@
 package com.tiestoettoet.create_train_parts;
 
 import com.simibubi.create.AllCreativeModeTabs;
+import com.simibubi.create.Create;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
@@ -43,9 +44,8 @@ public class CreateTrainParts {
 
     static {
         REGISTRATE.defaultCreativeTab((ResourceKey<CreativeModeTab>) null)
-                .setTooltipModifierFactory(
-                        item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-                                .andThen(TooltipModifier.mapNull(KineticStats.create(item))));
+                .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
+                        .andThen(TooltipModifier.mapNull(KineticStats.create(item))));
     }
 
     public CreateTrainParts(IEventBus modEventBus, ModContainer modContainer) {
@@ -66,11 +66,16 @@ public class CreateTrainParts {
 
         AllBlockEntityTypes.register();
 
+//        modEventBus.addListener(CreateTrainParts::commonSetup);
         modEventBus.addListener(CreateTrainParts::onRegister);
 
         // NeoForge.EVENT_BUS.register(this);
 
         ModItems.register(modEventBus);
+    }
+
+    public static void onRegister(final RegisterEvent event) {
+        AllContraptionTypes.init();
     }
 
     public static CreateRegistrate registrate() {
@@ -94,7 +99,6 @@ public class CreateTrainParts {
             // Some client setup code
             LOGGER.info("create_train_parts is starting up on the client side!");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-
         }
     }
 }
