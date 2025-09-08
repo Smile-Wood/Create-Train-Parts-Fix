@@ -14,6 +14,7 @@ import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -39,6 +40,7 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
 //        System.out.println("Partial Ticks: " + partialTicks);
         if (!be.shouldRenderSpecial(blockState))
             return;
+
 
         BlockPos pos = be.getBlockPos();
         BlockAndTintGetter world = be.getLevel();
@@ -127,7 +129,7 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
             // float animEighthTenth = Mth.clamp((value - 0.7f) / 0.1f, 0, 1);
             // float animNinthTenth = Mth.clamp((value - 0.8f) / 0.1f, 0, 1);
             // float animTenthTenth = Mth.clamp((value - 0.9f) / 0.1f, 0, 1);
-            
+
 
             float movementT;
             float movementC;
@@ -168,7 +170,7 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
             moveOffsetT = Vec3.atLowerCornerOf(movementDirection.getNormal()).scale(movementT);
 
 
-            
+
 
             for (Direction face : Iterate.directions) {
 
@@ -241,23 +243,38 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                 float u = (column) / 8f;
                 float v = (row) / 8f;
 
+//                u = u / 16f;
+//                v = v / 16f;
+
+                // Calculate lighting for moved positions
+                int blockLight = getSafeLight(world, pos, light);
+
                 partial_block
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         // .shiftUV(connectedShift)
-                        .light(light)
+                        .light(blockLight)
                         .renderInto(ms, vb);
+
+                // Calculate lighting for moved centre position
+                BlockPos centrePos = pos.offset((int) Math.round(moveOffsetC.x), (int) Math.round(moveOffsetC.y), (int) Math.round(moveOffsetC.z));
+                int centreLight = getSafeLight(world, centrePos, light);
 
                 partial_centre.translate(moveOffsetC.x, moveOffsetC.y, moveOffsetC.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
 //                        .rotateXDegrees(rotation)
-                        .light(light)
+                        .light(centreLight)
                         .renderInto(ms, vb);
+
+                // Calculate lighting for moved top position
+                BlockPos topPos = pos.offset((int) Math.round(moveOffsetT.x), (int) Math.round(moveOffsetT.y), (int) Math.round(moveOffsetT.z));
+                int topLight = getSafeLight(world, topPos, light);
+
                 partial_top.translate(moveOffsetT.x, moveOffsetT.y, moveOffsetT.z)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                        .light(light)
+                        .light(topLight)
                         .renderInto(ms, vb);
 
                 // if (facing == Direction.EAST || facing == Direction.WEST)
@@ -271,10 +288,14 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                 // u = (column) / 8f;
                 // v = (row) / 8f;
                 // }
+                // Calculate lighting for moved bottom position
+                BlockPos bottomPos = pos.offset((int) Math.round(moveOffsetB.x), (int) Math.round(moveOffsetB.y), (int) Math.round(moveOffsetB.z));
+                int bottomLight = getSafeLight(world, bottomPos, light);
+
                 partial_bottom.translate(moveOffsetB.x, moveOffsetB.y, moveOffsetB.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
-                        .light(light)
+                        .light(bottomLight)
                         .renderInto(ms, vb);
                 // if (facing == Direction.EAST || facing == Direction.WEST)
                 // if (face.getOpposite() == facing) {
@@ -298,5 +319,32 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
             // check if movementDirection is going north or south
 
         }
+    }
+    
+    /**
+     * Safely calculates light at a position, with fallbacks to prevent 0 light during closing animations
+     */
+    private int getSafeLight(BlockAndTintGetter world, BlockPos targetPos, int fallbackLight) {
+        // Check if the position is valid (within world bounds)
+        if (targetPos.getY() < world.getMinBuildHeight() || targetPos.getY() > world.getMaxBuildHeight()) {
+            return fallbackLight;
+        }
+        
+        int calculatedLight = LevelRenderer.getLightColor(world, targetPos);
+        
+        // If the calculated light is 0 (completely dark), use fallback
+        if (calculatedLight == 0) {
+            // Try the position above to see if that has better lighting
+            BlockPos abovePos = targetPos.above();
+            int aboveLight = LevelRenderer.getLightColor(world, abovePos);
+            if (aboveLight > 0) {
+                return aboveLight;
+            }
+            
+            // If still 0, return the original fallback light
+            return fallbackLight;
+        }
+        
+        return calculatedLight;
     }
 }
