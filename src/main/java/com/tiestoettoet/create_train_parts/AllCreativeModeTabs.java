@@ -1,8 +1,5 @@
 package com.tiestoettoet.create_train_parts;
 
-import com.simibubi.create.Create;
-import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import it.unimi.dsi.fastutil.objects.*;
 import net.createmod.catnip.platform.CatnipServices;
@@ -115,13 +112,13 @@ public class AllCreativeModeTabs {
             Function<Item, TabVisibility> visibilityFunc = makeVisibilityFunc();
 
             List<Item> items = new LinkedList<>();
-//            if (addItems) {
-//                items.addAll(collectItems(exclusionPredicate.or(IS_ITEM_3D_PREDICATE.negate())));
-//            }
+            // if (addItems) {
+            // items.addAll(collectItems(exclusionPredicate.or(IS_ITEM_3D_PREDICATE.negate())));
+            // }
             items.addAll(collectBlocks(exclusionPredicate));
-//            if (addItems) {
-//                items.addAll(collectItems(exclusionPredicate.or(IS_ITEM_3D_PREDICATE)));
-//            }
+            // if (addItems) {
+            // items.addAll(collectItems(exclusionPredicate.or(IS_ITEM_3D_PREDICATE)));
+            // }
 
             applyOrderings(items, orderings);
             outputAll(output, items, stackFunc, visibilityFunc);
@@ -130,15 +127,15 @@ public class AllCreativeModeTabs {
         private List<Item> collectBlocks(Predicate<Item> exclusionPredicate) {
             List<Item> items = new ReferenceArrayList<>();
             for (RegistryEntry<Block, Block> entry : CreateTrainParts.registrate().getAll(Registries.BLOCK)) {
-//                if (!CreateRegistrate.isInCreativeTab(entry, tabFilter))
-////                    System.out.println("Skipping block not in creative tab: " + entry.getId());
-//                    continue;
+                // if (!CreateRegistrate.isInCreativeTab(entry, tabFilter))
+                //// System.out.println("Skipping block not in creative tab: " + entry.getId());
+                // continue;
                 Item item = entry.get()
                         .asItem();
                 if (item == Items.AIR)
                     continue;
                 if (!exclusionPredicate.test(item)) {
-//                    System.out.println("Excluding item: " + item);
+                    // System.out.println("Excluding item: " + item);
                     items.add(item);
                 }
             }
@@ -167,7 +164,8 @@ public class AllCreativeModeTabs {
             }
         }
 
-        private static void outputAll(CreativeModeTab.Output output, List<Item> items, Function<Item, ItemStack> stackFunc, Function<Item, TabVisibility> visibilityFunc) {
+        private static void outputAll(CreativeModeTab.Output output, List<Item> items,
+                Function<Item, ItemStack> stackFunc, Function<Item, TabVisibility> visibilityFunc) {
             for (Item item : items) {
                 output.accept(stackFunc.apply(item), visibilityFunc.apply(item));
             }

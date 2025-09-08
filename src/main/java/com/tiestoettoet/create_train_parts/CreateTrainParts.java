@@ -97,6 +97,7 @@ public class CreateTrainParts {
             // Some client setup code
             LOGGER.info("create_train_parts is starting up on the client side!");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+
         }
     }
 }
