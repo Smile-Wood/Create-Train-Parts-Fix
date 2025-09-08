@@ -1,6 +1,7 @@
 package com.tiestoettoet.create_train_parts;
 
 import com.simibubi.create.AllCreativeModeTabs;
+import com.simibubi.create.Create;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
@@ -65,6 +66,7 @@ public class CreateTrainParts {
 
         AllBlockEntityTypes.register();
 
+//        modEventBus.addListener(CreateTrainParts::commonSetup);
         modEventBus.addListener(CreateTrainParts::onRegister);
 
         // NeoForge.EVENT_BUS.register(this);
@@ -72,12 +74,12 @@ public class CreateTrainParts {
         ModItems.register(modEventBus);
     }
 
-    public static CreateRegistrate registrate() {
-        return REGISTRATE;
+    public static void onRegister(final RegisterEvent event) {
+        AllContraptionTypes.init();
     }
 
-    private static void onRegister(final RegisterEvent event) {
-
+    public static CreateRegistrate registrate() {
+        return REGISTRATE;
     }
 
     public static ResourceLocation asResource(String path) {
@@ -97,7 +99,6 @@ public class CreateTrainParts {
             // Some client setup code
             LOGGER.info("create_train_parts is starting up on the client side!");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-
         }
     }
 }
