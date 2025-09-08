@@ -4,6 +4,7 @@ import com.tiestoettoet.create_train_parts.content.decoration.slidingWindow.Slid
 import com.tiestoettoet.create_train_parts.content.decoration.trainSlide.TrainSlideBlockEntity;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlock;
 import com.tiestoettoet.create_train_parts.content.decoration.trainStep.TrainStepBlockEntity;
+import com.tiestoettoet.create_train_parts.foundation.instruction.AnimateWorldSectionInstructionCreateTrainParts;
 import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.element.WorldSectionElement;
 import net.createmod.ponder.api.scene.SceneBuilder;
@@ -12,10 +13,13 @@ import net.createmod.ponder.foundation.PonderScene;
 import net.createmod.ponder.foundation.PonderSceneBuilder;
 import net.createmod.ponder.foundation.element.ElementLinkImpl;
 import net.createmod.ponder.foundation.element.WorldSectionElementImpl;
+import net.createmod.ponder.foundation.instruction.AnimateWorldSectionInstruction;
 import net.createmod.ponder.foundation.instruction.DisplayWorldSectionInstruction;
 import net.createmod.ponder.foundation.instruction.FadeOutOfSceneInstruction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public class CreateTrainPartsSceneBuilder extends PonderSceneBuilder {
 
@@ -86,6 +90,13 @@ public class CreateTrainPartsSceneBuilder extends PonderSceneBuilder {
         public void animateSlidingWindow(BlockPos position, boolean open) {
             modifyBlockEntityNBT(getScene().getSceneBuildingUtil().select().position(position), SlidingWindowBlockEntity.class,
                     nbt -> nbt.putBoolean("ForceOpen", open));
+        }
+
+        @Override
+        public void rotateSection(ElementLink<WorldSectionElement> link, double xRotation, double yRotation,
+                                  double zRotation, int duration) {
+            addInstruction(
+                    AnimateWorldSectionInstructionCreateTrainParts.rotate(link, new Vec3(xRotation, yRotation, zRotation), duration));
         }
     }
 

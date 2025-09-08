@@ -1,6 +1,7 @@
 package com.tiestoettoet.create_train_parts.infrastructure.ponder;
 
 import com.tiestoettoet.create_train_parts.AllBlocks;
+import com.tiestoettoet.create_train_parts.infrastructure.ponder.scenes.CrossingScenes;
 import com.tiestoettoet.create_train_parts.infrastructure.ponder.scenes.SlidingWindowScenes;
 import com.tiestoettoet.create_train_parts.infrastructure.ponder.scenes.TrainStepSlideScenes;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
@@ -23,6 +24,10 @@ public class AllCreateTrainPartsPonderScenes {
         HELPER.forComponents(AllBlocks.GLASS_SLIDING_WINDOW, AllBlocks.ANDESITE_SLIDING_WINDOW, AllBlocks.BRASS_SLIDING_WINDOW, AllBlocks.COPPER_SLIDING_WINDOW, AllBlocks.TRAIN_SLIDING_WINDOW)
                 .addStoryBoard("sliding_window/window", SlidingWindowScenes::modes)
                 .addStoryBoard("sliding_window/window_train", SlidingWindowScenes::trainBehaviour);
+
+        HELPER.forComponents(AllBlocks.CROSSING)
+                .addStoryBoard("crossing/crossing", CrossingScenes::crossing)
+                .addStoryBoard("crossing/railroad_crossing", CrossingScenes::railway_crossing);
     }
 
 }
