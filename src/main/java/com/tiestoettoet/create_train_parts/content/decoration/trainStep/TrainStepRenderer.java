@@ -19,6 +19,7 @@ import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.render.SpriteShiftEntry;
 import net.createmod.catnip.render.SuperByteBuffer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
@@ -61,7 +62,7 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
         CTType dataType = behaviour.getDataType(world, pos, blockState, facing);
 
         if (dataType == null) {
-//            System.out.println("Data type is null");
+            // System.out.println("Data type is null");
             return;
         }
         // Direction face = Direction.UP;
@@ -77,7 +78,7 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
         };
 
         float value = be.animation.getValue(partialTicks);
-//        System.out.println("TrainStepRenderer: Value: " + value);
+        // System.out.println("TrainStepRenderer: Value: " + value);
         float exponentialValue = (float) value * value;
         float relativeValue = blockState.getValue(TrainStepBlock.OPEN) ? exponentialValue : 1 - exponentialValue;
         float relativeAnimationValue = relativeValue;
@@ -240,7 +241,7 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
 
                 SuperByteBuffer partial_block = CachedBuffers.partial(block, blockState);
                 CTSpriteShiftEntry spriteShift = null;
-//                System.out.println("Block Texture Path: " + blockTexturePath);
+                // System.out.println("Block Texture Path: " + blockTexturePath);
                 if (blockTexturePath.equals("train_step_andesite")) {
                     spriteShift = AllSpriteShifts.ANDESITE_CASING;
                     // System.out.println("Using andesite casing texture");
@@ -260,16 +261,17 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                         spriteShift = com.tiestoettoet.create_train_parts.AllSpriteShifts.TRAIN_STEP_SIDE;
                     }
                 } else {
-//                    System.out.println("Unknown block texture path: " + blockTexturePath);
+                    // System.out.println("Unknown block texture path: " + blockTexturePath);
                     return;
                 }
 
                 if (spriteShift == null) {
-//                    System.out.println("Sprite shift is null, using fallback texture.");
+                    // System.out.println("Sprite shift is null, using fallback texture.");
                     return;
                 }
-//                System.out.println("TextureIndex: " + textureIndex + ", face: " + face + ",facing" + facing
-//                        + ", connectedState: " + connectedState);
+                // System.out.println("TextureIndex: " + textureIndex + ", face: " + face +
+                // ",facing" + facing
+                // + ", connectedState: " + connectedState);
 
                 SuperByteBuffer partial_slide = CachedBuffers.partial(slide, blockState);
                 SuperByteBuffer partial_pivot = CachedBuffers.partial(pivot, blockState);
@@ -280,23 +282,35 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                 float u = (column) / 8f;
                 float v = (row) / 8f;
 
+                BlockPos blockPos = pos;
+                int blockLight = getSafeLight(world, blockPos, light);
+
                 partial_block
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         // .shiftUV(connectedShift)
-                        .light(light)
+                        .light(blockLight)
                         .renderInto(ms, vb);
+
+                BlockPos flapPos = pos.offset((int) Math.round(movementF.x), (int) Math.round(movementF.y),
+                        (int) Math.round(movementF.z));
+                int flapLight = getSafeLight(world, flapPos, light);
 
                 partial_flap.translate(movementF.x, movementF.y, movementF.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         .rotateXDegrees(rotation)
-                        .light(light)
+                        .light(flapLight)
                         .renderInto(ms, vb);
+
+                BlockPos movePos = pos.offset((int) Math.round(movementM.x), (int) Math.round(movementM.y),
+                        (int) Math.round(movementM.z));
+                int moveLight = getSafeLight(world, movePos, light);
+
                 partial_move.translate(movementM.x, movementM.y, movementM.z)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                        .light(light)
+                        .light(moveLight)
                         .renderInto(ms, vb);
 
                 // if (facing == Direction.EAST || facing == Direction.WEST)
@@ -313,10 +327,15 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                 TrainStepBlockEntity.SlideMode mode = be.getMode();
                 if (mode == TrainStepBlockEntity.SlideMode.NO_SLIDE)
                     moveOffset = Vec3.ZERO;
+
+                BlockPos slidePos = pos.offset((int) Math.round(moveOffset.x), (int) Math.round(moveOffset.y),
+                        (int) Math.round(moveOffset.z));
+                int slideLight = getSafeLight(world, slidePos, light);
+
                 partial_slide.translate(moveOffset.x, moveOffset.y, moveOffset.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
-                        .light(light)
+                        .light(slideLight)
                         .renderInto(ms, vb);
                 // if (facing == Direction.EAST || facing == Direction.WEST)
                 // if (face.getOpposite() == facing) {
@@ -329,16 +348,44 @@ public class TrainStepRenderer extends SafeBlockEntityRenderer<TrainStepBlockEnt
                 // u = (column) / 8f;
                 // v = (row) / 8f;
                 // }
+                BlockPos pivotPos = pos.offset((int) Math.round(moveOffsetP.x), (int) Math.round(15.5 / 16f),
+                        (int) Math.round(moveOffsetP.z));
+                int pivotLight = getSafeLight(world, pivotPos, light);
+
                 partial_pivot.translate(moveOffsetP.x, 15.5 / 16f, moveOffsetP.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         .rotateXDegrees(rotationPivot)
-                        .light(light)
+                        .light(pivotLight)
                         .renderInto(ms, vb);
 
             }
             // check if movementDirection is going north or south
 
         }
+    }
+
+    private int getSafeLight(BlockAndTintGetter world, BlockPos targetPos, int fallbackLight) {
+        // Check if the position is valid (within world bounds)
+        if (targetPos.getY() < world.getMinBuildHeight() || targetPos.getY() > world.getMaxBuildHeight()) {
+            return fallbackLight;
+        }
+
+        int calculatedLight = LevelRenderer.getLightColor(world, targetPos);
+
+        // If the calculated light is 0 (completely dark), use fallback
+        if (calculatedLight == 0) {
+            // Try the position above to see if that has better lighting
+            BlockPos abovePos = targetPos.above();
+            int aboveLight = LevelRenderer.getLightColor(world, abovePos);
+            if (aboveLight > 0) {
+                return aboveLight;
+            }
+
+            // If still 0, return the original fallback light
+            return fallbackLight;
+        }
+
+        return calculatedLight;
     }
 }

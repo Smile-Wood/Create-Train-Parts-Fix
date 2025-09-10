@@ -13,6 +13,7 @@ import com.tiestoettoet.create_train_parts.content.decoration.encasing.EncasedCT
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.render.SuperByteBuffer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -36,7 +37,7 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
     protected void renderSafe(TrainSlideBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
             int light, int overlay) {
         BlockState blockState = be.getBlockState();
-//        System.out.println("Partial Ticks: " + partialTicks);
+        // System.out.println("Partial Ticks: " + partialTicks);
         if (!be.shouldRenderSpecial(blockState))
             return;
 
@@ -49,7 +50,7 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
         CTType dataType = behaviour.getDataType(world, pos, blockState, facing);
 
         if (dataType == null) {
-//            System.out.println("Data type is null");
+            // System.out.println("Data type is null");
             return;
         }
         // Direction face = Direction.UP;
@@ -127,7 +128,6 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
             // float animEighthTenth = Mth.clamp((value - 0.7f) / 0.1f, 0, 1);
             // float animNinthTenth = Mth.clamp((value - 0.8f) / 0.1f, 0, 1);
             // float animTenthTenth = Mth.clamp((value - 0.9f) / 0.1f, 0, 1);
-            
 
             float movementT;
             float movementC;
@@ -137,25 +137,31 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
             Vec3 moveOffsetB;
 
             // if (exponentialValue <= 0.25) {
-            //     movementMMain = (float) (0 / 16f + 0.25 / 16f * animFirstQuarter); // Main movement
-            //     movementMUp = (float) (0 / 16f - 2 / 16f * animFirstQuarter); // Upward movement
-            //     Vec3 moveOffsetM = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
-            //     movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
+            // movementMMain = (float) (0 / 16f + 0.25 / 16f * animFirstQuarter); // Main
+            // movement
+            // movementMUp = (float) (0 / 16f - 2 / 16f * animFirstQuarter); // Upward
+            // movement
+            // Vec3 moveOffsetM =
+            // Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
+            // movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
             // } else if (exponentialValue > 0.25 && exponentialValue <= 0.5) {
-            //     movementMMain = (float) (0.25 / 16f + 0.75 / 16f * animSecondQuarter);
-            //     movementMUp = (float) (-2 / 16f - 1.5 / 16f * animSecondQuarter);
-            //     Vec3 moveOffsetM = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
-            //     movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
+            // movementMMain = (float) (0.25 / 16f + 0.75 / 16f * animSecondQuarter);
+            // movementMUp = (float) (-2 / 16f - 1.5 / 16f * animSecondQuarter);
+            // Vec3 moveOffsetM =
+            // Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
+            // movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
             // } else if (exponentialValue > 0.5 && exponentialValue <= 0.75) {
-            //     movementMMain = (float) (1 / 16f + 1.25 / 16f * animThirdQuarter);
-            //     movementMUp = (float) (-3.5 / 16f - 1 / 16f * animThirdQuarter);
-            //     Vec3 moveOffsetM = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
-            //     movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
+            // movementMMain = (float) (1 / 16f + 1.25 / 16f * animThirdQuarter);
+            // movementMUp = (float) (-3.5 / 16f - 1 / 16f * animThirdQuarter);
+            // Vec3 moveOffsetM =
+            // Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
+            // movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
             // } else {
-            //     movementMMain = (float) (2.25 / 16f + 2.75 / 16f * animFourthQuarter);
-            //     movementMUp = (float) (-4.5 / 16f - 0.5 / 16f * animFourthQuarter);
-            //     Vec3 moveOffsetM = Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
-            //     movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
+            // movementMMain = (float) (2.25 / 16f + 2.75 / 16f * animFourthQuarter);
+            // movementMUp = (float) (-4.5 / 16f - 0.5 / 16f * animFourthQuarter);
+            // Vec3 moveOffsetM =
+            // Vec3.atLowerCornerOf(facing.getOpposite().getNormal()).scale(movementMMain);
+            // movementM = new Vec3(moveOffsetM.x, movementMUp, moveOffsetM.z);
             // }
 
             float valueFromThirdTenth = Mth.clamp((exponentialValue - 0.3f) / 0.7f, 0, 1);
@@ -167,15 +173,10 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
             moveOffsetC = Vec3.atLowerCornerOf(movementDirection.getNormal()).scale(movementC);
             moveOffsetT = Vec3.atLowerCornerOf(movementDirection.getNormal()).scale(movementT);
 
-
-            
-
             for (Direction face : Iterate.directions) {
 
                 ConnectedTextureBehaviour.CTContext context = behaviour.buildContext(world, pos, blockState, face,
                         dataType.getContextRequirement());
-
-
 
                 int textureIndex = dataType.getTextureIndex(context);
                 if (facing == Direction.EAST && face != Direction.UP && face != Direction.DOWN)
@@ -185,23 +186,22 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                 if (facing == Direction.WEST && face != Direction.UP && face != Direction.DOWN)
                     face = face.getClockWise();
 
-
                 ResourceLocation resourceLocation = CreateTrainParts.asResource(
                         blockTexturePath + "/" + facing.getSerializedName() + "_" + connectedState.getSerializedName()
                                 + "_" + face.getSerializedName());
 
-//                System.out.println("Resource Location: " + resourceLocation);
+                // System.out.println("Resource Location: " + resourceLocation);
 
                 PartialModel top = AllPartialModels.TRAIN_SLIDE_TOP.get(resourceLocation);
                 PartialModel centre = AllPartialModels.TRAIN_SLIDE_CENTRE.get(resourceLocation);
                 PartialModel block = AllPartialModels.TRAIN_SLIDE.get(resourceLocation);
 
                 PartialModel bottom = AllPartialModels.TRAIN_SLIDE_BOTTOM.get(resourceLocation);
-//                PartialModel pivot = AllPartialModels.TRAIN_STEP_PIVOT.get(resourceLocation);
+                // PartialModel pivot = AllPartialModels.TRAIN_STEP_PIVOT.get(resourceLocation);
 
                 SuperByteBuffer partial_block = CachedBuffers.partial(block, blockState);
                 CTSpriteShiftEntry spriteShift = null;
-//                System.out.println("Block Texture Path: " + blockTexturePath);
+                // System.out.println("Block Texture Path: " + blockTexturePath);
                 if (blockTexturePath.equals("train_slide_andesite")) {
                     spriteShift = AllSpriteShifts.ANDESITE_CASING;
                     // System.out.println("Using andesite casing texture");
@@ -221,19 +221,20 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                         spriteShift = com.tiestoettoet.create_train_parts.AllSpriteShifts.TRAIN_STEP_SIDE;
                     }
                 } else {
-//                    System.out.println("Unknown block texture path: " + blockTexturePath);
+                    // System.out.println("Unknown block texture path: " + blockTexturePath);
                     return;
                 }
 
                 if (spriteShift == null) {
-//                    System.out.println("Sprite shift is null, using fallback texture.");
+                    // System.out.println("Sprite shift is null, using fallback texture.");
                     return;
                 }
-//                System.out.println("TextureIndex: " + textureIndex + ", face: " + face + ",facing" + facing
-//                        + ", connectedState: " + connectedState);
+                // System.out.println("TextureIndex: " + textureIndex + ", face: " + face +
+                // ",facing" + facing
+                // + ", connectedState: " + connectedState);
 
                 SuperByteBuffer partial_bottom = CachedBuffers.partial(bottom, blockState);
-//                SuperByteBuffer partial_pivot = CachedBuffers.partial(pivot, blockState);
+                // SuperByteBuffer partial_pivot = CachedBuffers.partial(pivot, blockState);
                 SuperByteBuffer partial_top = CachedBuffers.partial(top, blockState);
                 SuperByteBuffer partial_centre = CachedBuffers.partial(centre, blockState);
                 float row = Math.floorDiv(textureIndex, 8);
@@ -241,23 +242,34 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                 float u = (column) / 8f;
                 float v = (row) / 8f;
 
+                int blockLight = getSafeLight(world, pos, light);
+
                 partial_block
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         // .shiftUV(connectedShift)
-                        .light(light)
+                        .light(blockLight)
                         .renderInto(ms, vb);
+
+                BlockPos centrePos = pos.offset((int) Math.round(moveOffsetC.x), (int) Math.round(moveOffsetC.y),
+                        (int) Math.round(moveOffsetC.z));
+                int centreLight = getSafeLight(world, centrePos, light);
 
                 partial_centre.translate(moveOffsetC.x, moveOffsetC.y, moveOffsetC.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
-//                        .rotateXDegrees(rotation)
-                        .light(light)
+                        // .rotateXDegrees(rotation)
+                        .light(centreLight)
                         .renderInto(ms, vb);
+
+                BlockPos topPos = pos.offset((int) Math.round(moveOffsetT.x), (int) Math.round(moveOffsetT.y),
+                        (int) Math.round(moveOffsetT.z));
+                int topLight = getSafeLight(world, topPos, light);
+
                 partial_top.translate(moveOffsetT.x, moveOffsetT.y, moveOffsetT.z)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-                        .light(light)
+                        .light(topLight)
                         .renderInto(ms, vb);
 
                 // if (facing == Direction.EAST || facing == Direction.WEST)
@@ -271,10 +283,15 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                 // u = (column) / 8f;
                 // v = (row) / 8f;
                 // }
+
+                BlockPos bottomPos = pos.offset((int) Math.round(moveOffsetB.x), (int) Math.round(moveOffsetB.y),
+                        (int) Math.round(moveOffsetB.z));
+                int bottomLight = getSafeLight(world, bottomPos, light);
+
                 partial_bottom.translate(moveOffsetB.x, moveOffsetB.y, moveOffsetB.z)
                         .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
                         .shiftUVtoSheet(spriteShift, u, v, 8)
-                        .light(light)
+                        .light(bottomLight)
                         .renderInto(ms, vb);
                 // if (facing == Direction.EAST || facing == Direction.WEST)
                 // if (face.getOpposite() == facing) {
@@ -287,16 +304,40 @@ public class TrainSlideRenderer extends SafeBlockEntityRenderer<TrainSlideBlockE
                 // u = (column) / 8f;
                 // v = (row) / 8f;
                 // }
-//                partial_pivot.translate(moveOffsetP.x, 15.5 / 16f, moveOffsetP.z)
-//                        .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
-//                        .shiftUVtoSheet(spriteShift, u, v, 8)
-//                        .rotateXDegrees(rotationPivot)
-//                        .light(light)
-//                        .renderInto(ms, vb);
+                // partial_pivot.translate(moveOffsetP.x, 15.5 / 16f, moveOffsetP.z)
+                // .rotateCentered(Mth.DEG_TO_RAD * rotationAngle, Direction.Axis.Y)
+                // .shiftUVtoSheet(spriteShift, u, v, 8)
+                // .rotateXDegrees(rotationPivot)
+                // .light(light)
+                // .renderInto(ms, vb);
 
             }
             // check if movementDirection is going north or south
 
         }
+    }
+
+    private int getSafeLight(BlockAndTintGetter world, BlockPos targetPos, int fallbackLight) {
+        // Check if the position is valid (within world bounds)
+        if (targetPos.getY() < world.getMinBuildHeight() || targetPos.getY() > world.getMaxBuildHeight()) {
+            return fallbackLight;
+        }
+
+        int calculatedLight = LevelRenderer.getLightColor(world, targetPos);
+
+        // If the calculated light is 0 (completely dark), use fallback
+        if (calculatedLight == 0) {
+            // Try the position above to see if that has better lighting
+            BlockPos abovePos = targetPos.above();
+            int aboveLight = LevelRenderer.getLightColor(world, abovePos);
+            if (aboveLight > 0) {
+                return aboveLight;
+            }
+
+            // If still 0, return the original fallback light
+            return fallbackLight;
+        }
+
+        return calculatedLight;
     }
 }

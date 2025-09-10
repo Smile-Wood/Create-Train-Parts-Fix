@@ -44,8 +44,9 @@ public class CreateTrainParts {
 
     static {
         REGISTRATE.defaultCreativeTab((ResourceKey<CreativeModeTab>) null)
-                .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-                        .andThen(TooltipModifier.mapNull(KineticStats.create(item))));
+                .setTooltipModifierFactory(
+                        item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
+                                .andThen(TooltipModifier.mapNull(KineticStats.create(item))));
     }
 
     public CreateTrainParts(IEventBus modEventBus, ModContainer modContainer) {
@@ -66,7 +67,7 @@ public class CreateTrainParts {
 
         AllBlockEntityTypes.register();
 
-//        modEventBus.addListener(CreateTrainParts::commonSetup);
+        // modEventBus.addListener(CreateTrainParts::commonSetup);
         modEventBus.addListener(CreateTrainParts::onRegister);
 
         // NeoForge.EVENT_BUS.register(this);
