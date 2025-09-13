@@ -19,20 +19,12 @@ license="${mod_license}"
 [[mods]] #mandatory
 
 # The modid of the mod
-modId="${mod_id}" #mandatory
-
-# The version number of the mod
-version="${mod_version}" #mandatory
-
-# A URL to query for updates for this mod. See the JSON update specification https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/
-#updateJSONURL="https://change.me.example.invalid/updates.json" #optional
-# A URL for the "homepage" for this mod, displayed in the mod UI
-#displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
-# A file name (in the root of the mod JAR) containing a logo for display
-logoFile="modicon.png" #optional
-
-# A text field displayed in the mod UI
-authors="${mod_authors}" #optional
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+logoFile="modicon.png"
+authors="${mod_authors}"
+description='''${mod_description}'''
 
 # Display Test controls the display for your mod in the server connection screen
 # MATCH_VERSION means that your mod will cause a red X if the versions on client and server differ. This is the default behaviour and should be what you choose if you have server and client elements to your mod.
@@ -43,7 +35,7 @@ authors="${mod_authors}" #optional
 displayTest="MATCH_VERSION" # MATCH_VERSION is the default if nothing is specified (#optional)
 
 # The description text for the mod (multi line!) (#mandatory)
-description='''${mod_description}'''
+
 
 [[mixins]]
     config="${mod_id}.mixins.json"

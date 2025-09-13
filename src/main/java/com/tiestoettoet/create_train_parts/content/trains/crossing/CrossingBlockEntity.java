@@ -137,7 +137,7 @@ public class CrossingBlockEntity extends KineticBlockEntity implements IControlC
         if (speed < 0) {
             speed = -speed;
         }
-        speed = speed / 50f * 0.05f;
+        speed = speed / 50f * 0.05f * 0.25f;
 
         float targetValue = shouldOpen ? 0 : 1;
         animation.chase(targetValue, speed, LerpedFloat.Chaser.LINEAR);
